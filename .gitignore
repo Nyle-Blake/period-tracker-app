@@ -1,24 +1,65 @@
+# ===== BACKEND =====
 # Virtual environments
-venv/
+backend/venv/
 
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
-dist/
-build/
+backend/dist/
+backend/build/
 
 # Django
 *.log
-db.sqlite3
-db.sqlite3-journal
-/static/
-/media/
-local_settings.py
+backend/db.sqlite3
+backend/db.sqlite3-journal
+backend/static/
+backend/media/
+backend/local_settings.py
 
+# ===== FRONTEND =====
+# Dependencies
+frontend/node_modules/
+
+# Expo
+frontend/.expo/
+frontend/dist/
+frontend/web-build/
+frontend/expo-env.d.ts
+
+# Native
+frontend/.kotlin/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+frontend/.metro-health-check*
+
+# TypeScript
+*.tsbuildinfo
+
+# Generated native folders
+frontend/ios/
+frontend/android/
+
+# ===== SHARED =====
 # Environment variables
 .env
+.env*.local
 
 # IDE
 .vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+*.pem
+
+# Logs
+npm-debug.*
+yarn-debug.*
+yarn-error.*
