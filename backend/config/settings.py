@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
 
-
     'common',
     'cycles',
     'users',
@@ -59,6 +58,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True # ONLY FOR DEVELOPMENT, CHANGE IN PRODUCTION!!!
 
 ROOT_URLCONF = 'config.urls'
 
@@ -142,5 +143,3 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
 }
-
-CORS_ALLOW_ALL_ORIGINS = True # ONLY FOR DEVELOPMENT, CHANGE IN PRODUCTION!!!
