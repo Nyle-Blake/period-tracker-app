@@ -24,8 +24,15 @@ class CycleEntry(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     start_date = models.DateField()
     end_date = models.DateField(null=True, blank=True)
+
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def period_days(self):
+        if self.end_date and self.start_date:
+            return (self.end_date - self.start_date).days + 1
+        return None
 
     def __str__(self):
         return f"{self.user} - {self.start_date}"
