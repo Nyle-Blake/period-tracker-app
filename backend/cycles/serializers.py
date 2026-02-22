@@ -37,8 +37,8 @@ class SymptomEntrySerializer(serializers.ModelSerializer):
         model = SymptomEntry
         fields = ['id', 'symptom', 'symptom_name', 'date', 'severity']
 
-        def validate_date(self, value):
-            if value > timezone.now().date():
-                raise serializers.ValidationError("Cannot log symptoms for a future date.")
-            
-            return value
+    def validate_date(self, value):
+        if value > timezone.now().date():
+            raise serializers.ValidationError("Cannot log symptoms for a future date.")
+        
+        return value
