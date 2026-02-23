@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { router } from 'expo-router';
 import useAuthStore from '../../store/authStore';
 
 export default function LoginScreen() {
@@ -69,6 +70,12 @@ export default function LoginScreen() {
                     ? <ActivityIndicator color="white" />
                     : <Text style={{ color: 'white', fontWeight: 'bold' }}>Log in</Text>
                 }
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => router.replace('/(auth)/register')}>
+                <Text style={{ color: colors.primary, textAlign: 'center', marginTop: 16 }}>
+                    Don't have an account? Register
+                </Text>
             </TouchableOpacity>
         </View>
     );
