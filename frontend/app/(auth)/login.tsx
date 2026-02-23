@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import useAuthStore from '../../store/authStore';
+import { colors } from '../../constants/colors';
 
 export default function LoginScreen() {
     const [email, setEmail] = useState('');
@@ -13,16 +14,16 @@ export default function LoginScreen() {
     };
 
     return (
-        <View style={{ flex: 1, justifyContent: 'center', padding: 24 }}>
-            <Text style={{ fontSize: 28, fontWeight: 'bold', marginBottom: 8 }}>
+        <View style={{ flex: 1, justifyContent: 'center', padding: 24, backgroundColor: colors.background }}>
+            <Text style={{ fontSize: 28, fontWeight: 'bold', marginBottom: 8, color: colors.text }}>
                 Welcome back
             </Text>
-            <Text style={{ color: 'gray', marginBottom: 32 }}>
+            <Text style={{ color: colors.textLight, marginBottom: 32 }}>
                 Log in to your account
             </Text>
 
             {error && (
-                <Text style={{ color: 'red', marginBottom: 16 }}>
+                <Text style={{ color: colors.error, marginBottom: 16 }}>
                     {error}
                 </Text>
             )}
@@ -30,10 +31,11 @@ export default function LoginScreen() {
             <TextInput
                 style={{
                     borderWidth: 1,
-                    borderColor: '#ccc',
+                    borderColor: colors.border,
                     borderRadius: 8,
                     padding: 12,
                     marginBottom: 16,
+                    backgroundColor: colors.white,
                 }}
                 placeholder="Email"
                 value={email}
@@ -45,10 +47,11 @@ export default function LoginScreen() {
             <TextInput
                 style={{
                     borderWidth: 1,
-                    borderColor: '#ccc',
+                    borderColor: colors.border,
                     borderRadius: 8,
                     padding: 12,
                     marginBottom: 24,
+                    backgroundColor: colors.white,
                 }}
                 placeholder="Password"
                 value={password}
@@ -58,7 +61,7 @@ export default function LoginScreen() {
 
             <TouchableOpacity
                 style={{
-                    backgroundColor: '#e85d8a',
+                    backgroundColor: colors.primary,
                     padding: 16,
                     borderRadius: 8,
                     alignItems: 'center',
@@ -67,8 +70,8 @@ export default function LoginScreen() {
                 disabled={isLoading}
             >
                 {isLoading
-                    ? <ActivityIndicator color="white" />
-                    : <Text style={{ color: 'white', fontWeight: 'bold' }}>Log in</Text>
+                    ? <ActivityIndicator color={colors.white} />
+                    : <Text style={{ color: colors.white, fontWeight: 'bold' }}>Log in</Text>
                 }
             </TouchableOpacity>
 
