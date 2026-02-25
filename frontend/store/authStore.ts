@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import * as SecureStore from 'expo-secure-store';
-import { login, logout, register } from '../services/auth';
+import { login as loginService, logout as logoutService, register as registerService } from '../services/auth';
 
 interface AuthState {
     isAuthenticated: boolean;
@@ -20,7 +20,7 @@ const useAuthStore = create<AuthState>((set) => ({
     login: async (email, password) => {
         set({ isLoading: true, error: null });
         try {
-            await login(email, password);
+            await loginService(email, password);
             set({ isAuthenticated: true, isLoading: false });
         } catch (error: any) {
             set({ isLoading: false, error: error.response?.data?.detail || 'Login failed' });
@@ -30,15 +30,24 @@ const useAuthStore = create<AuthState>((set) => ({
     register: async (username, email, password) => {
         set({ isLoading: true, error: null });
         try {
-            await register(username, email, password);
+            await registerService(username, email, password);
             set({ isLoading: false });
         } catch (error: any) {
-            set({ isLoading: false, error: error.response?.data?.detail || 'Registration failed' });
+            const data = error.response?.data;
+            let message = 'Registration failed';
+            if (data) {
+                if (data.email) message = `Email: ${data.email[0]}`;
+                else if (data.username) message = `Username: ${data.username[0]}`;
+                else if (data.password) message = `Password: ${data.password[0]}`;
+                else if (data.detail) message = data.detail;
+                else if (data.non_field_errors) message = data.non_field_errors[0];
+            }
+            set({ isLoading: false, error: message });
         }
     },
 
     logout: async () => {
-        await logout();
+        await logoutService();
         set({ isAuthenticated: false });
     },
 
