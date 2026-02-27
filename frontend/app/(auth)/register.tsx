@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import useAuthStore from '../../store/authStore';
@@ -9,7 +9,11 @@ export default function RegisterScreen() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const { register, isLoading, error } = useAuthStore();
+    const { register, isLoading, error, clearError } = useAuthStore();
+
+    useEffect(() => {
+        clearError();
+    }, []);
 
     const handleRegister = async () => {
         if (password !== confirmPassword) {

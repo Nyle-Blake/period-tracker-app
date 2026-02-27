@@ -10,6 +10,7 @@ interface AuthState {
     register: (username: string, email: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
     checkAuth: () => Promise<void>;
+    clearError: () => void;
 }
 
 const useAuthStore = create<AuthState>((set) => ({
@@ -55,6 +56,8 @@ const useAuthStore = create<AuthState>((set) => ({
         const token = await SecureStore.getItemAsync('access_token');
         set({ isAuthenticated: !!token });
     },
+
+    clearError: () => set({ error: null }),
 }));
 
 export default useAuthStore;

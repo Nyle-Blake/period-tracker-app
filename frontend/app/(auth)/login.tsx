@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import useAuthStore from '../../store/authStore';
@@ -7,7 +7,11 @@ import { colors } from '../../constants/colors';
 export default function LoginScreen() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const { login, isLoading, error } = useAuthStore();
+    const { login, isLoading, error, clearError } = useAuthStore();
+
+    useEffect(() => {
+        clearError();
+    }, []);
 
     const handleLogin = async () => {
         await login(email, password);
