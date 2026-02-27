@@ -17,7 +17,10 @@ export default function RegisterScreen() {
             return;
         }
         await register(username, email, password);
-        router.replace('/(auth)/login');
+        const { error } = useAuthStore.getState();
+        if (!error) {
+            router.replace('/(auth)/login');
+        }
     };
 
     return (
