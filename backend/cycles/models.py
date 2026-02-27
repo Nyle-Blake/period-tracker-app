@@ -1,10 +1,11 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from common.models import BaseModel
 
 User = get_user_model()
 
 
-class Symptom(models.Model):
+class Symptom(BaseModel):
     CATEGORY_CHOICES = [
         ('physical', 'Physical'),
         ('mood', 'Mood'),
@@ -20,13 +21,11 @@ class Symptom(models.Model):
         return self.name
 
 
-class CycleEntry(models.Model):
+class CycleEntry(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     start_date = models.DateField()
     end_date = models.DateField(null=True, blank=True)
-
     notes = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
 
     @property
     def period_days(self):
@@ -38,7 +37,7 @@ class CycleEntry(models.Model):
         return f"{self.user} - {self.start_date}"
 
 
-class SymptomEntry(models.Model):
+class SymptomEntry(BaseModel):
     SEVERITY_CHOICES = [(1, 'Mild'), (2, 'Moderate'), (3, 'Severe')]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
