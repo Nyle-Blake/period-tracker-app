@@ -18,7 +18,7 @@ SECRET_KEY = 'django-insecure-!*@e-@w^9!5ypr5^=9^yv1k&^je8e@^rv*t$x=007(i$@#!rff
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', getenv('TEST_IP')] # Dotenv does not currently work
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', getenv('TEST_IP', '')]
 
 # Application definition
 
