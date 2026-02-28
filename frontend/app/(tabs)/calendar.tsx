@@ -80,14 +80,17 @@ function buildMarkedDates(cycles: CycleEntry[]): MarkedDates {
         }
     }
 
-    // Ovulation window (5 days)
-    const ovulationMid = addDays(nextStart, -14);
-    for (let i = -2; i <= 2; i++) {
-        const d = addDays(ovulationMid, i);
-        if (!marked[d]) {
-            mark(d, '#a8d8a8', '#2d6a2d', i === -2, i === 2);
+    // Predicted next period (7 days)
+    sorted.forEach((c, i) => {
+        const nextCycleStart = i === 0 ? nextStart : sorted[i - 1].start_date;
+        const ovulationMid = addDays(nextCycleStart, -14);
+        for (let j = -2; j <= 2; j++) {
+            const d = addDays(ovulationMid, j);
+            if (!marked[d]) {
+                mark(d, '#a8d8a8', '#2d6a2d', j === -2, j === 2);
+            }
         }
-    }
+    });
 
     return marked;
 }
@@ -152,8 +155,10 @@ export default function CalendarScreen() {
 
     return (
         <View style={{ flex: 1, backgroundColor: colors.background }}>
-            <ScrollView contentContainerStyle={{ paddingTop: 60, paddingBottom: 40 }}>
-
+            <ScrollView
+                contentContainerStyle={{ paddingTop: 60, paddingBottom: 40 }}
+                directionalLockEnabled={true}
+            >
                 <Text style={{ fontSize: 22, fontWeight: 'bold', color: colors.text, paddingHorizontal: 20, marginBottom: 16 }}>
                     Your Cycle
                 </Text>
@@ -161,25 +166,28 @@ export default function CalendarScreen() {
                 {loading ? (
                     <ActivityIndicator color={colors.primary} style={{ marginTop: 40 }} />
                 ) : (
-                    <Calendar
-                        markingType="period"
-                        markedDates={markedDates}
-                        onDayPress={onDayPress}
-                        enableSwipeMonths={true}
-                        theme={{
-                            backgroundColor: colors.background,
-                            calendarBackground: colors.background,
-                            todayTextColor: colors.primary,
-                            arrowColor: colors.primary,
-                            monthTextColor: colors.text,
-                            textMonthFontWeight: '600',
-                            textMonthFontSize: 16,
-                            textDayFontSize: 14,
-                            textDayHeaderFontSize: 12,
-                            dayTextColor: colors.text,
-                            textSectionTitleColor: colors.textLight,
-                        }}
-                    />
+                    <View onStartShouldSetResponder={() => false}>
+                        <Calendar
+                            markingType="period"
+                            style={{ minHeight: 300 }}
+                            markedDates={markedDates}
+                            onDayPress={onDayPress}
+                            enableSwipeMonths={false}
+                            theme={{
+                                backgroundColor: colors.background,
+                                calendarBackground: colors.background,
+                                todayTextColor: colors.primary,
+                                arrowColor: colors.primary,
+                                monthTextColor: colors.text,
+                                textMonthFontWeight: '600',
+                                textMonthFontSize: 16,
+                                textDayFontSize: 14,
+                                textDayHeaderFontSize: 12,
+                                dayTextColor: colors.text,
+                                textSectionTitleColor: colors.textLight,
+                            }}
+                        />
+                    </View>
                 )}
 
                 {/* Legend */}
@@ -236,10 +244,10 @@ export default function CalendarScreen() {
                         </TouchableOpacity>
                         {showPicker && (
                             <DateTimePicker
-                                value={endDate ?? (selectedDay ? new Date(selectedDay) : new Date())}
+                                value={endDate ?? (selectedDay ? new Date(selectedDay + 'T00:00:00') : new Date())}
                                 mode="date"
                                 display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                                minimumDate={selectedDay ? new Date(selectedDay) : undefined}
+                                minimumDate={selectedDay ? new Date(selectedDay + 'T00:00:00') : undefined}
                                 onChange={(event: DateTimePickerEvent, date?: Date) => {
                                     setShowPicker(Platform.OS === 'ios');
                                     if (date) setEndDate(date);
