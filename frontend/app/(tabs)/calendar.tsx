@@ -92,6 +92,22 @@ function buildMarkedDates(cycles: CycleEntry[]): MarkedDates {
         }
     });
 
+    // Ovulation window for each past cycle (5 days, ~14 days before next period)
+    sorted.forEach((c, i) => {
+        // Estimate when the next period after this cycle started
+        const nextCycleStart = i === 0
+            ? nextStart  // for the latest, use the predicted next
+            : sorted[i - 1].start_date;  // for older ones, use the actual next cycle
+
+        const ovulationMid = addDays(nextCycleStart, -14);
+        for (let j = -2; j <= 2; j++) {
+            const d = addDays(ovulationMid, j);
+            if (!marked[d]) {
+                mark(d, '#a8d8a8', '#2d6a2d', j === -2, j === 2);
+            }
+        }
+    });
+
     return marked;
 }
 
