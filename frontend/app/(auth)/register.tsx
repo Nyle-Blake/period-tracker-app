@@ -36,16 +36,38 @@ export default function RegisterScreen() {
             alert('Passwords do not match');
             return;
         }
+        const cl = parseInt(cycleLength);
+        if (!cl || cl < 15 || cl > 60) {
+            alert('Cycle length must be between 15 and 60 days');
+            return;
+        }
+        const pl = parseInt(periodLength);
+        if (!pl || pl < 1 || pl > 15) {
+            alert('Period length must be between 1 and 15 days');
+            return;
+        }
+        if (pl >= cl) {
+            alert('Period length must be shorter than cycle length');
+            return;
+        }
         if (!lastPeriodStart) {
             alert('Please select when your last period started');
+            return;
+        }
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const selected = new Date(lastPeriodStart);
+        selected.setHours(0, 0, 0, 0);
+        if (selected > today) {
+            alert('Last period start date cannot be in the future');
             return;
         }
         await register({
             username,
             email,
             password,
-            cycle_length: parseInt(cycleLength) || 28,
-            period_length: parseInt(periodLength) || 5,
+            cycle_length: cl,
+            period_length: pl,
             last_period_start: toYMD(lastPeriodStart),
         });
         const { error } = useAuthStore.getState();
@@ -110,7 +132,7 @@ export default function RegisterScreen() {
             <TextInput
                 style={inputStyle}
                 value={cycleLength}
-                onChangeText={setCycleLength}
+                onChangeText={(v) => setCycleLength(v.replace(/[^0-9]/g, ''))}
                 keyboardType="numeric"
                 placeholder="e.g. 28"
             />
@@ -121,7 +143,7 @@ export default function RegisterScreen() {
             <TextInput
                 style={inputStyle}
                 value={periodLength}
-                onChangeText={setPeriodLength}
+                onChangeText={(v) => setPeriodLength(v.replace(/[^0-9]/g, ''))}
                 keyboardType="numeric"
                 placeholder="e.g. 5"
             />

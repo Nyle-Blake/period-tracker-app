@@ -5,10 +5,10 @@ import { getCycles, CycleEntry } from '../../services/cycles';
 import { getProfile, UserProfile } from '../../services/profile';
 import { colors } from '../../constants/colors';
 
-const RING_SIZE = 240;
-const STROKE_WIDTH = 16;
-const RADIUS = (RING_SIZE - STROKE_WIDTH) / 2;
-const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+const RING_SIZE = 260;
+const RING_RADIUS = 105;
+const DOT_RADIUS = 6;
+const CURRENT_DOT_RADIUS = 9;
 
 function getCycleInfo(cycles: CycleEntry[], profile: UserProfile | null) {
     if (cycles.length === 0) return null;
@@ -16,7 +16,6 @@ function getCycleInfo(cycles: CycleEntry[], profile: UserProfile | null) {
     const sorted = [...cycles].sort((a, b) => b.start_date.localeCompare(a.start_date));
     const latest = sorted[0];
 
-    // Average cycle length from history, fallback to profile, fallback to 28
     let cycleLength = profile?.cycle_length ?? 28;
     if (sorted.length >= 2) {
         const lengths: number[] = [];
@@ -31,7 +30,6 @@ function getCycleInfo(cycles: CycleEntry[], profile: UserProfile | null) {
         }
     }
 
-    // Period length from latest cycle, fallback to profile, fallback to 5
     let periodLength = profile?.period_length ?? 5;
     if (latest.end_date) {
         const diff = Math.round(
@@ -48,7 +46,18 @@ function getCycleInfo(cycles: CycleEntry[], profile: UserProfile | null) {
     const daysLeft = Math.max(0, cycleLength - currentDay + 1);
     const onPeriod = currentDay <= periodLength;
 
-    return { currentDay, cycleLength, periodLength, daysLeft, onPeriod };
+    // Ovulation window: ~14 days before next cycle start, ±2 days
+    const ovulationMid = cycleLength - 14;
+    const ovulationStart = ovulationMid - 2;
+    const ovulationEnd = ovulationMid + 2;
+
+    return { currentDay, cycleLength, periodLength, daysLeft, onPeriod, ovulationStart, ovulationEnd };
+}
+
+function getDotColor(day: number, periodLength: number, ovulationStart: number, ovulationEnd: number): string {
+    if (day <= periodLength) return colors.primary;
+    if (day >= ovulationStart && day <= ovulationEnd) return '#44bb77';
+    return colors.border;
 }
 
 export default function HomeScreen() {
@@ -93,52 +102,37 @@ export default function HomeScreen() {
         );
     }
 
-    const progress = Math.min(info.currentDay / info.cycleLength, 1);
-    const strokeDashoffset = CIRCUMFERENCE * (1 - progress);
+    const cx = RING_SIZE / 2;
+    const cy = RING_SIZE / 2;
 
-    // Period portion of the ring
-    const periodProgress = info.periodLength / info.cycleLength;
-    const periodDashArray = `${CIRCUMFERENCE * periodProgress} ${CIRCUMFERENCE * (1 - periodProgress)}`;
+    const dots = Array.from({ length: info.cycleLength }, (_, i) => {
+        const day = i + 1;
+        const angle = (2 * Math.PI * i) / info.cycleLength - Math.PI / 2;
+        const x = cx + RING_RADIUS * Math.cos(angle);
+        const y = cy + RING_RADIUS * Math.sin(angle);
+        const isCurrent = day === info.currentDay;
+        const dotColor = getDotColor(day, info.periodLength, info.ovulationStart, info.ovulationEnd);
+        const r = isCurrent ? CURRENT_DOT_RADIUS : DOT_RADIUS;
+        return { day, x, y, r, fill: dotColor, isCurrent };
+    });
 
     return (
         <View style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center', padding: 24 }}>
             <View style={{ alignItems: 'center', marginBottom: 40 }}>
                 <View style={{ width: RING_SIZE, height: RING_SIZE, alignItems: 'center', justifyContent: 'center' }}>
-                    <Svg width={RING_SIZE} height={RING_SIZE} style={{ transform: [{ rotate: '-90deg' }] }}>
-                        {/* Background ring */}
-                        <Circle
-                            cx={RING_SIZE / 2}
-                            cy={RING_SIZE / 2}
-                            r={RADIUS}
-                            stroke={colors.border}
-                            strokeWidth={STROKE_WIDTH}
-                            fill="none"
-                        />
-                        {/* Period portion */}
-                        <Circle
-                            cx={RING_SIZE / 2}
-                            cy={RING_SIZE / 2}
-                            r={RADIUS}
-                            stroke={colors.primaryLight}
-                            strokeWidth={STROKE_WIDTH}
-                            fill="none"
-                            strokeDasharray={periodDashArray}
-                            strokeLinecap="round"
-                        />
-                        {/* Progress arc */}
-                        <Circle
-                            cx={RING_SIZE / 2}
-                            cy={RING_SIZE / 2}
-                            r={RADIUS}
-                            stroke={info.onPeriod ? colors.primary : colors.success}
-                            strokeWidth={STROKE_WIDTH}
-                            fill="none"
-                            strokeDasharray={`${CIRCUMFERENCE}`}
-                            strokeDashoffset={strokeDashoffset}
-                            strokeLinecap="round"
-                        />
+                    <Svg width={RING_SIZE} height={RING_SIZE}>
+                        {dots.map((dot) => (
+                            <Circle
+                                key={dot.day}
+                                cx={dot.x}
+                                cy={dot.y}
+                                r={dot.r}
+                                fill={dot.fill}
+                                stroke={dot.isCurrent ? colors.text : 'none'}
+                                strokeWidth={dot.isCurrent ? 2 : 0}
+                            />
+                        ))}
                     </Svg>
-                    {/* Center text */}
                     <View style={{ position: 'absolute', alignItems: 'center' }}>
                         <Text style={{ fontSize: 42, fontWeight: 'bold', color: colors.text }}>
                             {info.currentDay}
@@ -159,6 +153,20 @@ export default function HomeScreen() {
                     : `${info.daysLeft} day${info.daysLeft !== 1 ? 's' : ''} until next period`
                 }
             </Text>
+
+            {/* Legend */}
+            <View style={{ flexDirection: 'row', gap: 20, marginBottom: 32 }}>
+                {[
+                    { color: colors.primary, label: 'Period' },
+                    { color: '#44bb77', label: 'Ovulation' },
+                    { color: colors.border, label: 'Regular' },
+                ].map(({ color, label }) => (
+                    <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                        <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: color }} />
+                        <Text style={{ color: colors.textLight, fontSize: 12 }}>{label}</Text>
+                    </View>
+                ))}
+            </View>
 
             {/* Stats row */}
             <View style={{ flexDirection: 'row', gap: 16 }}>

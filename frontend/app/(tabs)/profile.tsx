@@ -44,14 +44,34 @@ export default function ProfileScreen() {
     }, []);
 
     const handleSave = async () => {
-        setSaving(true);
         setError(null);
         setSuccess(false);
+
+        if (!username.trim()) {
+            setError('Username is required');
+            return;
+        }
+        const cl = cycleLength ? parseInt(cycleLength) : null;
+        if (cl !== null && (cl < 15 || cl > 60)) {
+            setError('Cycle length must be between 15 and 60 days');
+            return;
+        }
+        const pl = periodLength ? parseInt(periodLength) : null;
+        if (pl !== null && (pl < 1 || pl > 15)) {
+            setError('Period length must be between 1 and 15 days');
+            return;
+        }
+        if (cl !== null && pl !== null && pl >= cl) {
+            setError('Period length must be shorter than cycle length');
+            return;
+        }
+
+        setSaving(true);
         try {
             await updateProfile({
-                username,
-                cycle_length: cycleLength ? parseInt(cycleLength) : null,
-                period_length: periodLength ? parseInt(periodLength) : null,
+                username: username.trim(),
+                cycle_length: cl,
+                period_length: pl,
             });
             setSuccess(true);
         } catch {
@@ -105,7 +125,7 @@ export default function ProfileScreen() {
             <TextInput
                 style={inputStyle}
                 value={cycleLength}
-                onChangeText={setCycleLength}
+                onChangeText={(v) => setCycleLength(v.replace(/[^0-9]/g, ''))}
                 keyboardType="numeric"
                 placeholder="e.g. 28"
                 placeholderTextColor={colors.textLight}
@@ -117,7 +137,7 @@ export default function ProfileScreen() {
             <TextInput
                 style={inputStyle}
                 value={periodLength}
-                onChangeText={setPeriodLength}
+                onChangeText={(v) => setPeriodLength(v.replace(/[^0-9]/g, ''))}
                 keyboardType="numeric"
                 placeholder="e.g. 5"
                 placeholderTextColor={colors.textLight}

@@ -19,6 +19,11 @@ class RegisterSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'email', 'username', 'password', 'cycle_length', 'period_length', 'last_period_start')
 
+    def validate(self, data):
+        if data['period_length'] >= data['cycle_length']:
+            raise serializers.ValidationError("Period length must be shorter than cycle length")
+        return data
+
     def create(self, validated_data):
         last_period_start = validated_data.pop('last_period_start')
         user = User.objects.create_user(
@@ -37,10 +42,20 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    cycle_length = serializers.IntegerField(required=False, allow_null=True, min_value=15, max_value=60)
+    period_length = serializers.IntegerField(required=False, allow_null=True, min_value=1, max_value=15)
+
     class Meta:
         model = User
         fields = ('id', 'email', 'username', 'cycle_length', 'period_length')
         read_only_fields = ('id', 'email')
+
+    def validate(self, data):
+        cycle = data.get('cycle_length', self.instance.cycle_length if self.instance else None)
+        period = data.get('period_length', self.instance.period_length if self.instance else None)
+        if cycle is not None and period is not None and period >= cycle:
+            raise serializers.ValidationError("Period length must be shorter than cycle length")
+        return data
 
 
 class LoginSerializer(serializers.Serializer):
