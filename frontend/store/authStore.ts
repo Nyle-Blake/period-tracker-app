@@ -7,7 +7,7 @@ interface AuthState {
     isLoading: boolean;
     error: string | null;
     login: (email: string, password: string) => Promise<void>;
-    register: (username: string, email: string, password: string) => Promise<void>;
+    register: (data: { username: string; email: string; password: string; cycle_length: number; period_length: number; last_period_start: string }) => Promise<void>;
     logout: () => Promise<void>;
     checkAuth: () => Promise<void>;
     clearError: () => void;
@@ -28,10 +28,10 @@ const useAuthStore = create<AuthState>((set) => ({
         }
     },
 
-    register: async (username, email, password) => {
+    register: async (data) => {
         set({ isLoading: true, error: null });
         try {
-            await registerService(username, email, password);
+            await registerService(data);
             set({ isLoading: false });
         } catch (error: any) {
             const data = error.response?.data;

@@ -71,33 +71,47 @@ function buildMarkedDates(cycles: CycleEntry[]): MarkedDates {
         }
     }
 
-    // Predicted next period (7 days)
-    const nextStart = addDays(latest.start_date, avgLength);
-    for (let i = 0; i < 7; i++) {
-        const d = addDays(nextStart, i);
-        if (!marked[d]) {
-            mark(d, colors.primaryLight, colors.primary, i === 0, i === 6);
-        }
+    // Average period length from actual data
+    let avgPeriod = 5;
+    const periodLengths = sorted.filter(c => c.end_date).map(c => {
+        return Math.round((new Date(c.end_date!).getTime() - new Date(c.start_date).getTime()) / 86400000) + 1;
+    }).filter(d => d > 0 && d < 15);
+    if (periodLengths.length > 0) {
+        avgPeriod = Math.round(periodLengths.reduce((s, v) => s + v, 0) / periodLengths.length);
     }
 
-    // Predicted next period (7 days)
-    sorted.forEach((c, i) => {
-        const nextCycleStart = i === 0 ? nextStart : sorted[i - 1].start_date;
-        const ovulationMid = addDays(nextCycleStart, -14);
+    // Predict 6 future cycles
+    const PREDICTIONS = 6;
+    let prevStart = latest.start_date;
+    for (let n = 0; n < PREDICTIONS; n++) {
+        const nextStart = addDays(prevStart, avgLength);
+
+        // Predicted period days
+        for (let i = 0; i < avgPeriod; i++) {
+            const d = addDays(nextStart, i);
+            if (!marked[d]) {
+                mark(d, colors.primaryLight, colors.primary, i === 0, i === avgPeriod - 1);
+            }
+        }
+
+        // Ovulation window for this predicted cycle (~14 days before next predicted period)
+        const nextNextStart = addDays(nextStart, avgLength);
+        const ovulationMid = addDays(nextNextStart, -14);
         for (let j = -2; j <= 2; j++) {
             const d = addDays(ovulationMid, j);
             if (!marked[d]) {
                 mark(d, '#a8d8a8', '#2d6a2d', j === -2, j === 2);
             }
         }
-    });
 
-    // Ovulation window for each past cycle (5 days, ~14 days before next period)
+        prevStart = nextStart;
+    }
+
+    // Ovulation window for each past cycle
     sorted.forEach((c, i) => {
-        // Estimate when the next period after this cycle started
         const nextCycleStart = i === 0
-            ? nextStart  // for the latest, use the predicted next
-            : sorted[i - 1].start_date;  // for older ones, use the actual next cycle
+            ? addDays(latest.start_date, avgLength)
+            : sorted[i - 1].start_date;
 
         const ovulationMid = addDays(nextCycleStart, -14);
         for (let j = -2; j <= 2; j++) {

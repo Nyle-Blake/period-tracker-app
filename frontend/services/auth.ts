@@ -1,12 +1,17 @@
 import api from './api';
 import * as SecureStore from 'expo-secure-store';
 
-export const register = async (username: string, email: string, password: string) => {
-    const response = await api.post('/api/auth/register/', {
-        username,
-        email,
-        password,
-    });
+interface RegisterData {
+    username: string;
+    email: string;
+    password: string;
+    cycle_length: number;
+    period_length: number;
+    last_period_start: string;
+}
+
+export const register = async (data: RegisterData) => {
+    const response = await api.post('/api/auth/register/', data);
     return response.data;
 };
 
