@@ -28,7 +28,7 @@ class SymptomSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Symptom
-        fields = ['id', 'name', 'category', 'icon']
+        fields = ['id', 'name', 'category', 'icon', 'symptom_name']
 
 class SymptomEntrySerializer(serializers.ModelSerializer):
     symptom_name = serializers.CharField(source='symptom.name', read_only=True)
