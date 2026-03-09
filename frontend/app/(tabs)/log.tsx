@@ -4,7 +4,7 @@ import { getSymptoms, getSymptomEntries, createSymptomEntry, deleteSymptomEntry,
 import { colors } from '../../constants/colors';
 
 const SEVERITY_LABELS: Record<number, string> = { 1: 'Mild', 2: 'Moderate', 3: 'Severe' };
-const SEVERITY_COLORS: Record<number, string> = { 1: '#44bb77', 2: '#f0a500', 3: '#ff4444' };
+const SEVERITY_COLORS: Record<number, string> = { 1: colors.ovulation, 2: colors.accent, 3: colors.primary };
 
 export default function LogScreen() {
     const [symptoms, setSymptoms] = useState<Symptom[]>([]);
@@ -92,7 +92,7 @@ export default function LogScreen() {
                         </Text>
 
                         {error && (
-                            <View style={{ backgroundColor: '#fff0f0', borderRadius: 8, padding: 12, marginBottom: 16 }}>
+                            <View style={{ backgroundColor: colors.errorBg, borderRadius: 8, padding: 12, marginBottom: 16 }}>
                                 <Text style={{ color: colors.error }}>{error}</Text>
                             </View>
                         )}

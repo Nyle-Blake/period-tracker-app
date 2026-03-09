@@ -88,7 +88,7 @@ export default function RegisterScreen() {
             </Text>
 
             {error && (
-                <View style={{ backgroundColor: '#fff0f0', borderRadius: 8, padding: 12, marginBottom: 16 }}>
+                <View style={{ backgroundColor: colors.errorBg, borderRadius: 8, padding: 12, marginBottom: 16 }}>
                     <Text style={{ color: colors.error }}>{error}</Text>
                 </View>
             )}

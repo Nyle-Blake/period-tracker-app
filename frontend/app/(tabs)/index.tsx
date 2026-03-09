@@ -56,8 +56,8 @@ function getCycleInfo(cycles: CycleEntry[], profile: UserProfile | null) {
 
 function getDotColor(day: number, periodLength: number, ovulationStart: number, ovulationEnd: number): string {
     if (day <= periodLength) return colors.primary;
-    if (day >= ovulationStart && day <= ovulationEnd) return '#44bb77';
-    return colors.border;
+    if (day >= ovulationStart && day <= ovulationEnd) return colors.ovulation;
+    return colors.ovulationLight;
 }
 
 export default function HomeScreen() {
@@ -135,7 +135,7 @@ export default function HomeScreen() {
                     </Svg>
                     <View style={{ position: 'absolute', alignItems: 'center' }}>
                         <Text style={{ fontSize: 42, fontWeight: 'bold', color: colors.text }}>
-                            {info.currentDay}
+                            Day {info.currentDay}
                         </Text>
                         <Text style={{ fontSize: 14, color: colors.textLight }}>
                             of {info.cycleLength} days
@@ -158,8 +158,8 @@ export default function HomeScreen() {
             <View style={{ flexDirection: 'row', gap: 20, marginBottom: 32 }}>
                 {[
                     { color: colors.primary, label: 'Period' },
-                    { color: '#44bb77', label: 'Ovulation' },
-                    { color: colors.border, label: 'Regular' },
+                    { color: colors.ovulation, label: 'Ovulation' },
+                    { color: colors.ovulationLight, label: 'Regular' },
                 ].map(({ color, label }) => (
                     <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                         <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: color }} />

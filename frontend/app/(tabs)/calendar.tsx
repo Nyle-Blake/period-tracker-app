@@ -100,7 +100,7 @@ function buildMarkedDates(cycles: CycleEntry[]): MarkedDates {
         for (let j = -2; j <= 2; j++) {
             const d = addDays(ovulationMid, j);
             if (!marked[d]) {
-                mark(d, '#a8d8a8', '#2d6a2d', j === -2, j === 2);
+                mark(d, colors.ovulationLight, colors.ovulation, j === -2, j === 2);
             }
         }
 
@@ -117,7 +117,7 @@ function buildMarkedDates(cycles: CycleEntry[]): MarkedDates {
         for (let j = -2; j <= 2; j++) {
             const d = addDays(ovulationMid, j);
             if (!marked[d]) {
-                mark(d, '#a8d8a8', '#2d6a2d', j === -2, j === 2);
+                mark(d, colors.ovulationLight, colors.ovulation, j === -2, j === 2);
             }
         }
     });
@@ -228,7 +228,7 @@ export default function CalendarScreen() {
                     {[
                         { color: colors.primary, label: 'Period' },
                         { color: colors.primaryLight, label: 'Predicted period' },
-                        { color: '#a8d8a8', label: 'Ovulation window' },
+                        { color: colors.ovulationLight, label: 'Ovulation window' },
                     ].map(({ color, label }) => (
                         <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                             <View style={{ width: 14, height: 14, borderRadius: 7, backgroundColor: color }} />
