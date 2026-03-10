@@ -150,7 +150,7 @@ export default function CalendarScreen() {
                     <Calendar
                         style={{ minHeight: 300 }}
                         markedDates={markedDates}
-                        enableSwipeMonths={false}
+                        enableSwipeMonths={true}
                         theme={{
                             backgroundColor: colors.background,
                             calendarBackground: colors.background,
