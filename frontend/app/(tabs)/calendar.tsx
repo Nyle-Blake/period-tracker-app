@@ -14,6 +14,7 @@ import { Calendar } from 'react-native-calendars';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { colors } from '../../constants/colors';
 import { getCycles, createCycle, CycleEntry } from '../../services/cycles';
+import { getProfile, UserProfile } from '../../services/profile';
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -81,7 +82,7 @@ function buildMarkedDates(cycles: CycleEntry[]): MarkedDates {
     }
 
     // Predict 6 future cycles
-    const PREDICTIONS = 6;
+    const PREDICTIONS = 2;
     let prevStart = latest.start_date;
     for (let n = 0; n < PREDICTIONS; n++) {
         const nextStart = addDays(prevStart, avgLength);
@@ -129,6 +130,7 @@ function buildMarkedDates(cycles: CycleEntry[]): MarkedDates {
 
 export default function CalendarScreen() {
     const [cycles, setCycles] = useState<CycleEntry[]>([]);
+    const [profile, setProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
 
     const [selectedDay, setSelectedDay] = useState<string | null>(null);
@@ -142,8 +144,9 @@ export default function CalendarScreen() {
     const fetchCycles = useCallback(async () => {
         try {
             setLoading(true);
-            const data = await getCycles();
-            setCycles(data);
+            const [cyclesData, profileData] = await Promise.all([getCycles(), getProfile()]);
+            setCycles(cyclesData);
+            setProfile(profileData);
         } catch {
             Alert.alert('Error', 'Could not load cycle data.');
         } finally {
@@ -158,6 +161,15 @@ export default function CalendarScreen() {
     const markedDates = buildMarkedDates(cycles);
 
     const onDayPress = (day: { dateString: string }) => {
+        const cycleLength = profile?.cycle_length ?? 28;
+        const insideCycle = cycles.some((c) => {
+            const cycleEnd = addDays(c.start_date, cycleLength - 1);
+            return day.dateString >= c.start_date && day.dateString <= cycleEnd;
+        });
+        if (insideCycle) {
+            Alert.alert('Already logged', 'This day falls within an existing cycle. Each cycle can only have one period.');
+            return;
+        }
         setSelectedDay(day.dateString);
         setEndDate(null);
         setShowPicker(false);
