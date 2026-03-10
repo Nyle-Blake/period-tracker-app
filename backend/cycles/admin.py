@@ -1,4 +1,4 @@
 from django.contrib import admin
-from .models import CycleEntry
+from .models import PeriodEntry
 
-admin.site.register(CycleEntry)
+admin.site.register(PeriodEntry)

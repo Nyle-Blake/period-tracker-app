@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
-import { getCycles, CycleEntry } from '../../services/cycles';
+import { getPeriods, PeriodEntry, createPeriod, updatePeriod } from '../../services/cycles';
 import { getProfile, UserProfile } from '../../services/profile';
 import { colors } from '../../constants/colors';
 
@@ -10,7 +10,7 @@ const RING_RADIUS = 105;
 const DOT_RADIUS = 6;
 const CURRENT_DOT_RADIUS = 9;
 
-function getCycleInfo(cycles: CycleEntry[], profile: UserProfile | null) {
+function getCycleInfo(cycles: PeriodEntry[], profile: UserProfile | null) {
     if (cycles.length === 0) return null;
 
     const sorted = [...cycles].sort((a, b) => b.start_date.localeCompare(a.start_date));
@@ -61,13 +61,13 @@ function getDotColor(day: number, periodLength: number, ovulationStart: number, 
 }
 
 export default function HomeScreen() {
-    const [cycles, setCycles] = useState<CycleEntry[]>([]);
+    const [cycles, setCycles] = useState<PeriodEntry[]>([]);
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
 
     const fetchData = useCallback(async () => {
         try {
-            const [cyclesData, profileData] = await Promise.all([getCycles(), getProfile()]);
+            const [cyclesData, profileData] = await Promise.all([getPeriods(), getProfile()]);
             setCycles(cyclesData);
             setProfile(profileData);
         } catch {

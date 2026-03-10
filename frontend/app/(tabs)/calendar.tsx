@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { colors } from '../../constants/colors';
-import { getCycles, CycleEntry } from '../../services/cycles';
+import { getPeriods, PeriodEntry } from '../../services/cycles';
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -18,7 +18,7 @@ type MarkedDates = Record<string, {
     selectedTextColor?: string;
 }>;
 
-function buildMarkedDates(cycles: CycleEntry[]): MarkedDates {
+function buildMarkedDates(cycles: PeriodEntry[]): MarkedDates {
     const marked: MarkedDates = {};
 
     const mark = (dateStr: string, bgColor: string, txtColor: string) => {
@@ -113,13 +113,13 @@ function buildMarkedDates(cycles: CycleEntry[]): MarkedDates {
 // ─── component ───────────────────────────────────────────────────────────────
 
 export default function CalendarScreen() {
-    const [cycles, setCycles] = useState<CycleEntry[]>([]);
+    const [cycles, setCycles] = useState<PeriodEntry[]>([]);
     const [loading, setLoading] = useState(true);
 
     const fetchCycles = useCallback(async () => {
         try {
             setLoading(true);
-            const data = await getCycles();
+            const data = await getPeriods();
             setCycles(data);
         } catch {
             Alert.alert('Error', 'Could not load cycle data.');

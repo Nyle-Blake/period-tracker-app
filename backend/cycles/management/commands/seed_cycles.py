@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
-from cycles.models import CycleEntry
+from cycles.models import PeriodEntry
 from datetime import date, timedelta
 
 User = get_user_model()
@@ -50,7 +50,7 @@ class Command(BaseCommand):
             cycle_start = start + timedelta(days=cycle_length * i)
             cycle_end = cycle_start + timedelta(days=period_duration - 1)
 
-            _, created = CycleEntry.objects.get_or_create(
+            _, created = PeriodEntry.objects.get_or_create(
                 user=user,
                 start_date=cycle_start,
                 defaults={

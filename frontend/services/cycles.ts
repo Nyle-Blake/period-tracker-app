@@ -1,28 +1,28 @@
 import api from './api';
 
-export interface CycleEntry {
+export interface PeriodEntry {
     id?: number;
     start_date: string;   // YYYY-MM-DD
     end_date?: string;    // YYYY-MM-DD
-    cycle_length?: number;
     notes?: string;
+    period_days?: number;
 }
 
-export const getCycles = async (): Promise<CycleEntry[]> => {
-    const response = await api.get('/api/cycles-entries/');
+export const getPeriods = async (): Promise<PeriodEntry[]> => {
+    const response = await api.get('/api/period-entries/');
     return response.data;
 };
 
-export const createCycle = async (entry: CycleEntry): Promise<CycleEntry> => {
-    const response = await api.post('/api/cycles-entries/', entry);
+export const createPeriod = async (entry: Partial<PeriodEntry>): Promise<PeriodEntry> => {
+    const response = await api.post('/api/period-entries/', entry);
     return response.data;
 };
 
-export const updateCycle = async (id: number, entry: Partial<CycleEntry>): Promise<CycleEntry> => {
-    const response = await api.patch(`/api/cycles-entries/${id}/`, entry);
+export const updatePeriod = async (id: number, entry: Partial<PeriodEntry>): Promise<PeriodEntry> => {
+    const response = await api.patch(`/api/period-entries/${id}/`, entry);
     return response.data;
 };
 
-export const deleteCycle = async (id: number): Promise<void> => {
-    await api.delete(`/api/cycles-entries/${id}/`);
+export const deletePeriod = async (id: number): Promise<void> => {
+    await api.delete(`/api/period-entries/${id}/`);
 };

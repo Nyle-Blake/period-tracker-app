@@ -1,13 +1,13 @@
 from datetime import timedelta
 from rest_framework import serializers
-from .models import CycleEntry, Symptom, SymptomEntry
+from .models import PeriodEntry, Symptom, SymptomEntry
 from django.utils import timezone
 
-class CycleEntrySerializer(serializers.ModelSerializer):
+class PeriodEntrySerializer(serializers.ModelSerializer):
     period_days = serializers.IntegerField(read_only=True)
 
     class Meta:
-        model = CycleEntry
+        model = PeriodEntry
         fields = ['id', 'start_date', 'end_date', 'notes', 'created_at', 'period_days']
 
     def validate(self, data):
@@ -26,7 +26,7 @@ class CycleEntrySerializer(serializers.ModelSerializer):
         if start_date:
             user = self.context['request'].user
             cycle_length = user.cycle_length or 28
-            existing = CycleEntry.objects.filter(user=user)
+            existing = PeriodEntry.objects.filter(user=user)
             if self.instance:
                 existing = existing.exclude(pk=self.instance.pk)
             for c in existing:
@@ -40,14 +40,14 @@ class CycleEntrySerializer(serializers.ModelSerializer):
 
 class SymptomSerializer(serializers.ModelSerializer):
     symptom_name = serializers.CharField(source='symptom.name', read_only=True)
-    
+
     class Meta:
         model = Symptom
         fields = ['id', 'name', 'category', 'icon', 'symptom_name']
 
 class SymptomEntrySerializer(serializers.ModelSerializer):
     symptom_name = serializers.CharField(source='symptom.name', read_only=True)
-    
+
     class Meta:
         model = SymptomEntry
         fields = ['id', 'symptom', 'symptom_name', 'date', 'severity']
@@ -55,5 +55,5 @@ class SymptomEntrySerializer(serializers.ModelSerializer):
     def validate_date(self, value):
         if value > timezone.now().date():
             raise serializers.ValidationError("Cannot log symptoms for a future date.")
-        
+
         return value

@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
-from cycles.models import CycleEntry
+from cycles.models import PeriodEntry
 
 User = get_user_model()
 
@@ -33,7 +33,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             cycle_length=validated_data['cycle_length'],
             period_length=validated_data['period_length'],
         )
-        CycleEntry.objects.create(
+        PeriodEntry.objects.create(
             user=user,
             start_date=last_period_start,
             end_date=last_period_start + timedelta(days=validated_data['period_length'] - 1),

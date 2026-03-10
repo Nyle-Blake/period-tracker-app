@@ -21,7 +21,7 @@ class Symptom(BaseModel):
         return self.name
 
 
-class CycleEntry(BaseModel):
+class PeriodEntry(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     start_date = models.DateField()
     end_date = models.DateField(null=True, blank=True)

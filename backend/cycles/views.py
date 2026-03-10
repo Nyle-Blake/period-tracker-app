@@ -1,13 +1,13 @@
 from rest_framework import viewsets, permissions
-from .models import CycleEntry, Symptom, SymptomEntry
-from .serializers import CycleEntrySerializer, SymptomSerializer, SymptomEntrySerializer
+from .models import PeriodEntry, Symptom, SymptomEntry
+from .serializers import PeriodEntrySerializer, SymptomSerializer, SymptomEntrySerializer
 
-class CycleEntryViewSet(viewsets.ModelViewSet):
+class PeriodEntryViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
-    serializer_class = CycleEntrySerializer
+    serializer_class = PeriodEntrySerializer
 
     def get_queryset(self):
-        return CycleEntry.objects.filter(user=self.request.user)
+        return PeriodEntry.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
