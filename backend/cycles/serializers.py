@@ -22,18 +22,18 @@ class PeriodEntrySerializer(serializers.ModelSerializer):
             if end_date < start_date:
                 raise serializers.ValidationError("End date cannot be before start date.")
 
-        # Prevent two periods within the same cycle
+        # Prevent overlapping periods
         if start_date:
             user = self.context['request'].user
-            cycle_length = user.cycle_length or 28
+            period_length = user.period_length or 5
             existing = PeriodEntry.objects.filter(user=user)
             if self.instance:
                 existing = existing.exclude(pk=self.instance.pk)
             for c in existing:
-                cycle_end = c.start_date + timedelta(days=cycle_length - 1)
-                if start_date >= c.start_date and start_date <= cycle_end:
+                period_end = c.end_date or (c.start_date + timedelta(days=period_length - 1))
+                if start_date >= c.start_date and start_date <= period_end:
                     raise serializers.ValidationError(
-                        "This date falls within an existing cycle. Each cycle can only have one period."
+                        "This date falls within an existing period."
                     )
 
         return data

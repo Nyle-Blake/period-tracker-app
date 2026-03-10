@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { View, Text, ActivityIndicator } from 'react-native';
+import { View, Text, ActivityIndicator, TouchableOpacity } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { getPeriods, PeriodEntry, createPeriod, updatePeriod } from '../../services/cycles';
 import { getProfile, UserProfile } from '../../services/profile';
@@ -51,7 +51,10 @@ function getCycleInfo(cycles: PeriodEntry[], profile: UserProfile | null) {
     const ovulationStart = ovulationMid - 2;
     const ovulationEnd = ovulationMid + 2;
 
-    return { currentDay, cycleLength, periodLength, daysLeft, onPeriod, ovulationStart, ovulationEnd };
+    const latestEntry = latest;
+    const periodActive = !latest.end_date && currentDay <= periodLength;
+
+    return { currentDay, cycleLength, periodLength, daysLeft, onPeriod, ovulationStart, ovulationEnd, latestEntry, periodActive };
 }
 
 function getDotColor(day: number, periodLength: number, ovulationStart: number, ovulationEnd: number): string {
@@ -64,6 +67,7 @@ export default function HomeScreen() {
     const [cycles, setCycles] = useState<PeriodEntry[]>([]);
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
+    const [actionLoading, setActionLoading] = useState(false);
 
     const fetchData = useCallback(async () => {
         try {
@@ -76,6 +80,35 @@ export default function HomeScreen() {
             setLoading(false);
         }
     }, []);
+
+    const handlePeriodStarted = async () => {
+        setActionLoading(true);
+        try {
+            const today = new Date().toISOString().split('T')[0];
+            await createPeriod({ start_date: today });
+            await fetchData();
+        } catch {
+            // silently fail
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    const handlePeriodEnded = async () => {
+        const sorted = [...cycles].sort((a, b) => b.start_date.localeCompare(a.start_date));
+        const latest = sorted[0];
+        if (!latest?.id) return;
+        setActionLoading(true);
+        try {
+            const today = new Date().toISOString().split('T')[0];
+            await updatePeriod(latest.id, { end_date: today });
+            await fetchData();
+        } catch {
+            // silently fail
+        } finally {
+            setActionLoading(false);
+        }
+    };
 
     useEffect(() => {
         fetchData();
@@ -95,9 +128,23 @@ export default function HomeScreen() {
         return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background, padding: 24 }}>
                 <Text style={{ fontSize: 28, fontWeight: 'bold', color: colors.text, marginBottom: 8 }}>Welcome</Text>
-                <Text style={{ color: colors.textLight, textAlign: 'center' }}>
-                    Log your first period in the Calendar tab to see your cycle overview here.
+                <Text style={{ color: colors.textLight, textAlign: 'center', marginBottom: 24 }}>
+                    Tap the button below to start tracking your cycle.
                 </Text>
+                <TouchableOpacity
+                    onPress={handlePeriodStarted}
+                    disabled={actionLoading}
+                    style={{
+                        backgroundColor: colors.primary,
+                        paddingHorizontal: 32,
+                        paddingVertical: 14,
+                        borderRadius: 12,
+                    }}
+                >
+                    <Text style={{ color: '#fff', fontWeight: '600', fontSize: 16 }}>
+                        {actionLoading ? 'Saving...' : 'My period started'}
+                    </Text>
+                </TouchableOpacity>
             </View>
         );
     }
@@ -147,12 +194,48 @@ export default function HomeScreen() {
             <Text style={{ fontSize: 20, fontWeight: '600', color: colors.text, marginBottom: 4 }}>
                 {info.onPeriod ? 'On your period' : 'Not on your period'}
             </Text>
-            <Text style={{ color: colors.textLight, marginBottom: 32 }}>
+            <Text style={{ color: colors.textLight, marginBottom: 16 }}>
                 {info.onPeriod
                     ? `Day ${info.currentDay} of your period`
                     : `${info.daysLeft} day${info.daysLeft !== 1 ? 's' : ''} until next period`
                 }
             </Text>
+
+            {info.periodActive ? (
+                <TouchableOpacity
+                    onPress={handlePeriodEnded}
+                    disabled={actionLoading}
+                    style={{
+                        backgroundColor: colors.white,
+                        paddingHorizontal: 28,
+                        paddingVertical: 12,
+                        borderRadius: 12,
+                        borderWidth: 1,
+                        borderColor: colors.primary,
+                        marginBottom: 32,
+                    }}
+                >
+                    <Text style={{ color: colors.primary, fontWeight: '600', fontSize: 15 }}>
+                        {actionLoading ? 'Saving...' : 'My period ended'}
+                    </Text>
+                </TouchableOpacity>
+            ) : (
+                <TouchableOpacity
+                    onPress={handlePeriodStarted}
+                    disabled={actionLoading}
+                    style={{
+                        backgroundColor: colors.primary,
+                        paddingHorizontal: 28,
+                        paddingVertical: 12,
+                        borderRadius: 12,
+                        marginBottom: 32,
+                    }}
+                >
+                    <Text style={{ color: '#fff', fontWeight: '600', fontSize: 15 }}>
+                        {actionLoading ? 'Saving...' : 'My period started'}
+                    </Text>
+                </TouchableOpacity>
+            )}
 
             {/* Legend */}
             <View style={{ flexDirection: 'row', gap: 20, marginBottom: 32 }}>
