@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import * as SecureStore from 'expo-secure-store';
+import { getItem } from '../services/storage';
 import { login as loginService, logout as logoutService, register as registerService } from '../services/auth';
 
 interface AuthState {
@@ -53,7 +53,7 @@ const useAuthStore = create<AuthState>((set) => ({
     },
 
     checkAuth: async () => {
-        const token = await SecureStore.getItemAsync('access_token');
+        const token = await getItem('access_token');
         set({ isAuthenticated: !!token });
     },
 

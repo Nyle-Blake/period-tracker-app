@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, ScrollView, Platform } from 'react-native';
-import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { router } from 'expo-router';
 import useAuthStore from '../../store/authStore';
 import { colors } from '../../constants/colors';
+
+let DateTimePicker: any = null;
+if (Platform.OS !== 'web') {
+    DateTimePicker = require('@react-native-community/datetimepicker').default;
+}
 
 const inputStyle = {
     borderWidth: 1,
@@ -74,6 +78,59 @@ export default function RegisterScreen() {
         if (!error) {
             router.replace('/(auth)/login');
         }
+    };
+
+    const renderDatePicker = () => {
+        if (Platform.OS === 'web') {
+            return (
+                <input
+                    type="date"
+                    max={toYMD(new Date())}
+                    value={lastPeriodStart ? toYMD(lastPeriodStart) : ''}
+                    onChange={(e) => {
+                        if (e.target.value) {
+                            setLastPeriodStart(new Date(e.target.value + 'T00:00:00'));
+                        }
+                    }}
+                    style={{
+                        borderWidth: 1,
+                        borderColor: colors.border,
+                        borderRadius: 8,
+                        padding: 12,
+                        marginBottom: 16,
+                        backgroundColor: colors.white,
+                        color: colors.text,
+                        fontSize: 16,
+                        width: '100%',
+                    }}
+                />
+            );
+        }
+
+        return (
+            <>
+                <TouchableOpacity
+                    onPress={() => setShowDatePicker(true)}
+                    style={inputStyle}
+                >
+                    <Text style={{ color: lastPeriodStart ? colors.text : colors.textLight }}>
+                        {lastPeriodStart ? toYMD(lastPeriodStart) : 'Select date'}
+                    </Text>
+                </TouchableOpacity>
+                {showDatePicker && DateTimePicker && (
+                    <DateTimePicker
+                        value={lastPeriodStart ?? new Date()}
+                        mode="date"
+                        display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                        maximumDate={new Date()}
+                        onChange={(_event: any, date?: Date) => {
+                            setShowDatePicker(Platform.OS === 'ios');
+                            if (date) setLastPeriodStart(date);
+                        }}
+                    />
+                )}
+            </>
+        );
     };
 
     return (
@@ -151,26 +208,7 @@ export default function RegisterScreen() {
             <Text style={{ color: colors.textLight, marginBottom: 6, fontSize: 12, textTransform: 'uppercase', letterSpacing: 1 }}>
                 When did your last period start?
             </Text>
-            <TouchableOpacity
-                onPress={() => setShowDatePicker(true)}
-                style={inputStyle}
-            >
-                <Text style={{ color: lastPeriodStart ? colors.text : colors.textLight }}>
-                    {lastPeriodStart ? toYMD(lastPeriodStart) : 'Select date'}
-                </Text>
-            </TouchableOpacity>
-            {showDatePicker && (
-                <DateTimePicker
-                    value={lastPeriodStart ?? new Date()}
-                    mode="date"
-                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                    maximumDate={new Date()}
-                    onChange={(event: DateTimePickerEvent, date?: Date) => {
-                        setShowDatePicker(Platform.OS === 'ios');
-                        if (date) setLastPeriodStart(date);
-                    }}
-                />
-            )}
+            {renderDatePicker()}
 
             <TouchableOpacity
                 style={{

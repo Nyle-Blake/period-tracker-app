@@ -1,5 +1,5 @@
 import api from './api';
-import * as SecureStore from 'expo-secure-store';
+import { getItem, setItem, deleteItem } from './storage';
 
 interface RegisterData {
     username: string;
@@ -22,18 +22,18 @@ export const login = async (email: string, password: string) => {
     });
 
     // store both tokens securely on the device
-    await SecureStore.setItemAsync('access_token', response.data.access);
-    await SecureStore.setItemAsync('refresh_token', response.data.refresh);
+    await setItem('access_token', response.data.access);
+    await setItem('refresh_token', response.data.refresh);
 
     return response.data;
 };
 
 export const logout = async () => {
-    await SecureStore.deleteItemAsync('access_token');
-    await SecureStore.deleteItemAsync('refresh_token');
+    await deleteItem('access_token');
+    await deleteItem('refresh_token');
 };
 
 export const isLoggedIn = async () => {
-    const token = await SecureStore.getItemAsync('access_token');
+    const token = await getItem('access_token');
     return !!token;
 };
