@@ -2,6 +2,7 @@ from datetime import timedelta
 from dotenv import load_dotenv
 from os import getenv
 from pathlib import Path
+import dj_database_url
 
 load_dotenv()
 
@@ -18,7 +19,7 @@ SECRET_KEY = getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', getenv('TEST_IP', '')]
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', getenv('TEST_IP', ''), getenv('RENDER_EXTERNAL_HOSTNAME', ''), '.onrender.com']
 
 # Application definition
 
@@ -77,16 +78,21 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 import sys
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': getenv('DB_NAME'),
-        'USER': getenv('DB_USER'),
-        'PASSWORD': getenv('DB_PASSWORD'),
-        'HOST': getenv('DB_HOST', '127.0.0.1'),
-        'PORT': getenv('DB_PORT', '5432'),
+if getenv('DATABASE_URL'):
+    DATABASES = {
+        'default': dj_database_url.config(default=getenv('DATABASE_URL'))
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': getenv('DB_NAME'),
+            'USER': getenv('DB_USER'),
+            'PASSWORD': getenv('DB_PASSWORD'),
+            'HOST': getenv('DB_HOST', '127.0.0.1'),
+            'PORT': getenv('DB_PORT', '5432'),
+        }
+    }
 
 if 'test' in sys.argv:
     DATABASES['default'] = {
