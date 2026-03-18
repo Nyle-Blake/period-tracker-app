@@ -3,16 +3,8 @@ import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, ScrollView 
 import { getProfile, updateProfile, UserProfile } from '../../services/profile';
 import useAuthStore from '../../store/authStore';
 import { colors } from '../../constants/colors';
-
-const inputStyle = {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
-    backgroundColor: colors.white,
-    color: colors.text,
-};
+import { useLayout } from '../../constants/layout';
+import { CornerFlowers } from '../../components/Flowers';
 
 export default function ProfileScreen() {
     const { logout } = useAuthStore();
@@ -24,6 +16,18 @@ export default function ProfileScreen() {
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
+    const layout = useLayout();
+
+    const inputStyle = {
+        borderWidth: 1,
+        borderColor: colors.border,
+        borderRadius: 8,
+        padding: layout.inputPadding,
+        marginBottom: 16,
+        backgroundColor: colors.white,
+        color: colors.text,
+        fontSize: layout.fontSize.body,
+    };
 
     const fetchProfile = useCallback(async () => {
         try {
@@ -90,88 +94,91 @@ export default function ProfileScreen() {
     }
 
     return (
-        <ScrollView style={{ flex: 1, backgroundColor: colors.background }} contentContainerStyle={{ padding: 24 }}>
-            <Text style={{ fontSize: 28, fontWeight: 'bold', marginBottom: 4, color: colors.text }}>
-                Profile
-            </Text>
-            <Text style={{ color: colors.textLight, marginBottom: 32 }}>
-                {profile?.email}
-            </Text>
+        <View style={{ flex: 1, backgroundColor: colors.background }}>
+        <CornerFlowers />
+        <ScrollView
+            style={{ flex: 1 }}
+            contentContainerStyle={{ padding: layout.padding, alignItems: layout.isWide ? 'center' : 'stretch' }}
+        >
+            <View style={{ width: layout.contentWidth, maxWidth: '100%' }}>
+                <Text style={{ fontSize: layout.fontSize.title, fontWeight: 'bold', marginBottom: 4, color: colors.text }}>
+                    Profile
+                </Text>
+                <Text style={{ color: colors.textLight, marginBottom: 32, fontSize: layout.fontSize.body }}>
+                    {profile?.email}
+                </Text>
 
-            {error && (
-                <View style={{ backgroundColor: colors.errorBg, borderRadius: 8, padding: 12, marginBottom: 16 }}>
-                    <Text style={{ color: colors.error }}>{error}</Text>
-                </View>
-            )}
-            {success && (
-                <View style={{ backgroundColor: '#edfff4', borderRadius: 8, padding: 12, marginBottom: 16 }}>
-                    <Text style={{ color: colors.success }}>Changes saved</Text>
-                </View>
-            )}
+                {error && (
+                    <View style={{ backgroundColor: colors.errorBg, borderRadius: 8, padding: 12, marginBottom: 16 }}>
+                        <Text style={{ color: colors.error, fontSize: layout.fontSize.body }}>{error}</Text>
+                    </View>
+                )}
+                {success && (
+                    <View style={{ backgroundColor: colors.successBg, borderRadius: 8, padding: 12, marginBottom: 16 }}>
+                        <Text style={{ color: colors.success, fontSize: layout.fontSize.body }}>Changes saved</Text>
+                    </View>
+                )}
 
-            <Text style={{ color: colors.textLight, marginBottom: 6, fontSize: 12, textTransform: 'uppercase', letterSpacing: 1 }}>
-                Username
-            </Text>
-            <TextInput
-                style={inputStyle}
-                value={username}
-                onChangeText={setUsername}
-                autoCapitalize="none"
-            />
+                <Text style={{ color: colors.textLight, marginBottom: 6, fontSize: layout.fontSize.small, textTransform: 'uppercase', letterSpacing: 1 }}>
+                    Username
+                </Text>
+                <TextInput style={inputStyle} value={username} onChangeText={setUsername} autoCapitalize="none" />
 
-            <Text style={{ color: colors.textLight, marginBottom: 6, fontSize: 12, textTransform: 'uppercase', letterSpacing: 1 }}>
-                Cycle Length (days)
-            </Text>
-            <TextInput
-                style={inputStyle}
-                value={cycleLength}
-                onChangeText={(v) => setCycleLength(v.replace(/[^0-9]/g, ''))}
-                keyboardType="numeric"
-                placeholder="e.g. 28"
-                placeholderTextColor={colors.textLight}
-            />
+                <Text style={{ color: colors.textLight, marginBottom: 6, fontSize: layout.fontSize.small, textTransform: 'uppercase', letterSpacing: 1 }}>
+                    Cycle Length (days)
+                </Text>
+                <TextInput
+                    style={inputStyle}
+                    value={cycleLength}
+                    onChangeText={(v) => setCycleLength(v.replace(/[^0-9]/g, ''))}
+                    keyboardType="numeric"
+                    placeholder="e.g. 28"
+                    placeholderTextColor={colors.textLight}
+                />
 
-            <Text style={{ color: colors.textLight, marginBottom: 6, fontSize: 12, textTransform: 'uppercase', letterSpacing: 1 }}>
-                Period Length (days)
-            </Text>
-            <TextInput
-                style={inputStyle}
-                value={periodLength}
-                onChangeText={(v) => setPeriodLength(v.replace(/[^0-9]/g, ''))}
-                keyboardType="numeric"
-                placeholder="e.g. 5"
-                placeholderTextColor={colors.textLight}
-            />
+                <Text style={{ color: colors.textLight, marginBottom: 6, fontSize: layout.fontSize.small, textTransform: 'uppercase', letterSpacing: 1 }}>
+                    Period Length (days)
+                </Text>
+                <TextInput
+                    style={inputStyle}
+                    value={periodLength}
+                    onChangeText={(v) => setPeriodLength(v.replace(/[^0-9]/g, ''))}
+                    keyboardType="numeric"
+                    placeholder="e.g. 5"
+                    placeholderTextColor={colors.textLight}
+                />
 
-            <TouchableOpacity
-                style={{
-                    backgroundColor: colors.primary,
-                    padding: 16,
-                    borderRadius: 8,
-                    alignItems: 'center',
-                    marginBottom: 16,
-                }}
-                onPress={handleSave}
-                disabled={saving}
-            >
-                {saving
-                    ? <ActivityIndicator color={colors.white} />
-                    : <Text style={{ color: colors.white, fontWeight: 'bold' }}>Save changes</Text>
-                }
-            </TouchableOpacity>
+                <TouchableOpacity
+                    style={{
+                        backgroundColor: colors.primary,
+                        padding: layout.buttonPadding,
+                        borderRadius: 8,
+                        alignItems: 'center',
+                        marginBottom: 16,
+                    }}
+                    onPress={handleSave}
+                    disabled={saving}
+                >
+                    {saving
+                        ? <ActivityIndicator color={colors.white} />
+                        : <Text style={{ color: colors.white, fontWeight: 'bold', fontSize: layout.fontSize.body }}>Save changes</Text>
+                    }
+                </TouchableOpacity>
 
-            <TouchableOpacity
-                style={{
-                    borderWidth: 1,
-                    borderColor: colors.border,
-                    padding: 16,
-                    borderRadius: 8,
-                    alignItems: 'center',
-                }}
-                onPress={logout}
-            >
-                <Text style={{ color: colors.textLight, fontWeight: 'bold' }}>Log out</Text>
-            </TouchableOpacity>
+                <TouchableOpacity
+                    style={{
+                        borderWidth: 1,
+                        borderColor: colors.border,
+                        padding: layout.buttonPadding,
+                        borderRadius: 8,
+                        alignItems: 'center',
+                    }}
+                    onPress={logout}
+                >
+                    <Text style={{ color: colors.textLight, fontWeight: 'bold', fontSize: layout.fontSize.body }}>Log out</Text>
+                </TouchableOpacity>
+            </View>
         </ScrollView>
+        </View>
     );
 }

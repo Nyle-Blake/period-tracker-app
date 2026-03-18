@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator, SectionList, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, ActivityIndicator, SectionList } from 'react-native';
 import { getSymptoms, getSymptomEntries, createSymptomEntry, deleteSymptomEntry, Symptom, SymptomEntry } from '../../services/symptoms';
 import { colors } from '../../constants/colors';
+import { useLayout } from '../../constants/layout';
+import { CornerFlowers } from '../../components/Flowers';
 
 const SEVERITY_LABELS: Record<number, string> = { 1: 'Mild', 2: 'Moderate', 3: 'Severe' };
 const SEVERITY_COLORS: Record<number, string> = { 1: colors.ovulation, 2: colors.accent, 3: colors.primary };
@@ -14,6 +16,7 @@ export default function LogScreen() {
     const [selectedSymptom, setSelectedSymptom] = useState<number | null>(null);
     const [selectedSeverity, setSelectedSeverity] = useState<number>(1);
     const [error, setError] = useState<string | null>(null);
+    const layout = useLayout();
 
     const fetchData = useCallback(async () => {
         try {
@@ -80,48 +83,48 @@ export default function LogScreen() {
     }
 
     return (
-        <View style={{ flex: 1, backgroundColor: colors.background }}>
+        <View style={{ flex: 1, backgroundColor: colors.background, alignItems: layout.isWide ? 'center' : 'stretch' }}>
+            <CornerFlowers />
             <SectionList
                 sections={sections}
                 keyExtractor={(item) => item.id.toString()}
-                contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
+                contentContainerStyle={{ padding: layout.padding, paddingBottom: 40, width: layout.isWide ? 540 : undefined, maxWidth: '100%' }}
                 ListHeaderComponent={
                     <View style={{ marginBottom: 24 }}>
-                        <Text style={{ fontSize: 28, fontWeight: 'bold', marginBottom: 16, color: colors.text }}>
+                        <Text style={{ fontSize: layout.fontSize.title, fontWeight: 'bold', marginBottom: 16, color: colors.text }}>
                             Symptoms
                         </Text>
 
                         {error && (
                             <View style={{ backgroundColor: colors.errorBg, borderRadius: 8, padding: 12, marginBottom: 16 }}>
-                                <Text style={{ color: colors.error }}>{error}</Text>
+                                <Text style={{ color: colors.error, fontSize: layout.fontSize.body }}>{error}</Text>
                             </View>
                         )}
 
-                        <Text style={{ color: colors.textLight, marginBottom: 8, fontSize: 12, textTransform: 'uppercase', letterSpacing: 1 }}>
+                        <Text style={{ color: colors.textLight, marginBottom: 8, fontSize: layout.fontSize.small, textTransform: 'uppercase', letterSpacing: 1 }}>
                             Log a symptom for today
                         </Text>
 
-                        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 12 }}>
+                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
                             {symptoms.map((s) => (
                                 <TouchableOpacity
                                     key={s.id}
                                     onPress={() => setSelectedSymptom(s.id)}
                                     style={{
-                                        paddingHorizontal: 14,
-                                        paddingVertical: 8,
+                                        paddingHorizontal: layout.isWide ? 18 : 14,
+                                        paddingVertical: layout.isWide ? 10 : 8,
                                         borderRadius: 20,
-                                        marginRight: 8,
                                         backgroundColor: selectedSymptom === s.id ? colors.primary : colors.white,
                                         borderWidth: 1,
                                         borderColor: selectedSymptom === s.id ? colors.primary : colors.border,
                                     }}
                                 >
-                                    <Text style={{ color: selectedSymptom === s.id ? colors.white : colors.text }}>
+                                    <Text style={{ color: selectedSymptom === s.id ? colors.white : colors.text, fontSize: layout.fontSize.body }}>
                                         {s.icon} {s.name}
                                     </Text>
                                 </TouchableOpacity>
                             ))}
-                        </ScrollView>
+                        </View>
 
                         <View style={{ flexDirection: 'row', marginBottom: 12 }}>
                             {[1, 2, 3].map((level) => (
@@ -130,7 +133,7 @@ export default function LogScreen() {
                                     onPress={() => setSelectedSeverity(level)}
                                     style={{
                                         flex: 1,
-                                        paddingVertical: 8,
+                                        paddingVertical: layout.isWide ? 10 : 8,
                                         borderRadius: 8,
                                         marginRight: level < 3 ? 8 : 0,
                                         backgroundColor: selectedSeverity === level ? SEVERITY_COLORS[level] : colors.white,
@@ -139,7 +142,7 @@ export default function LogScreen() {
                                         alignItems: 'center',
                                     }}
                                 >
-                                    <Text style={{ color: selectedSeverity === level ? colors.white : colors.text, fontWeight: '600' }}>
+                                    <Text style={{ color: selectedSeverity === level ? colors.white : colors.text, fontWeight: '600', fontSize: layout.fontSize.body }}>
                                         {SEVERITY_LABELS[level]}
                                     </Text>
                                 </TouchableOpacity>
@@ -151,20 +154,20 @@ export default function LogScreen() {
                             disabled={!selectedSymptom || saving}
                             style={{
                                 backgroundColor: selectedSymptom ? colors.primary : colors.border,
-                                padding: 14,
+                                padding: layout.buttonPadding,
                                 borderRadius: 8,
                                 alignItems: 'center',
                             }}
                         >
                             {saving
                                 ? <ActivityIndicator color={colors.white} />
-                                : <Text style={{ color: colors.white, fontWeight: 'bold' }}>Log symptom</Text>
+                                : <Text style={{ color: colors.white, fontWeight: 'bold', fontSize: layout.fontSize.body }}>Log symptom</Text>
                             }
                         </TouchableOpacity>
                     </View>
                 }
                 renderSectionHeader={({ section: { title } }) => (
-                    <Text style={{ color: colors.textLight, fontSize: 12, textTransform: 'uppercase', letterSpacing: 1, marginTop: 16, marginBottom: 8 }}>
+                    <Text style={{ color: colors.textLight, fontSize: layout.fontSize.small, textTransform: 'uppercase', letterSpacing: 1, marginTop: 16, marginBottom: 8 }}>
                         {title}
                     </Text>
                 )}
@@ -174,26 +177,26 @@ export default function LogScreen() {
                         alignItems: 'center',
                         backgroundColor: colors.white,
                         borderRadius: 8,
-                        padding: 12,
+                        padding: layout.inputPadding,
                         marginBottom: 8,
                         borderWidth: 1,
                         borderColor: colors.border,
                     }}>
                         <View style={{ flex: 1 }}>
-                            <Text style={{ color: colors.text, fontWeight: '600' }}>{item.symptom_name}</Text>
+                            <Text style={{ color: colors.text, fontWeight: '600', fontSize: layout.fontSize.body }}>{item.symptom_name}</Text>
                             {item.severity && (
-                                <Text style={{ color: SEVERITY_COLORS[item.severity], fontSize: 12, marginTop: 2 }}>
+                                <Text style={{ color: SEVERITY_COLORS[item.severity], fontSize: layout.fontSize.small, marginTop: 2 }}>
                                     {SEVERITY_LABELS[item.severity]}
                                 </Text>
                             )}
                         </View>
                         <TouchableOpacity onPress={() => handleDelete(item.id)}>
-                            <Text style={{ color: colors.textLight, fontSize: 18 }}>✕</Text>
+                            <Text style={{ color: colors.textLight, fontSize: layout.isWide ? 20 : 18 }}>✕</Text>
                         </TouchableOpacity>
                     </View>
                 )}
                 ListEmptyComponent={
-                    <Text style={{ color: colors.textLight, textAlign: 'center', marginTop: 32 }}>
+                    <Text style={{ color: colors.textLight, textAlign: 'center', marginTop: 32, fontSize: layout.fontSize.body }}>
                         No symptoms logged yet
                     </Text>
                 }

@@ -3,6 +3,8 @@ import { View, Text, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { colors } from '../../constants/colors';
 import { getPeriods, PeriodEntry } from '../../services/cycles';
+import { useLayout } from '../../constants/layout';
+import { CornerFlowers } from '../../components/Flowers';
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -115,6 +117,7 @@ function buildMarkedDates(cycles: PeriodEntry[]): MarkedDates {
 export default function CalendarScreen() {
     const [cycles, setCycles] = useState<PeriodEntry[]>([]);
     const [loading, setLoading] = useState(true);
+    const layout = useLayout();
 
     const fetchCycles = useCallback(async () => {
         try {
@@ -135,12 +138,13 @@ export default function CalendarScreen() {
     const markedDates = buildMarkedDates(cycles);
 
     return (
-        <View style={{ flex: 1, backgroundColor: colors.background }}>
+        <View style={{ flex: 1, backgroundColor: colors.background, alignItems: layout.isWide ? 'center' : 'stretch' }}>
+            <CornerFlowers />
             <ScrollView
-                contentContainerStyle={{ paddingTop: 60, paddingBottom: 40 }}
+                contentContainerStyle={{ paddingTop: 60, paddingBottom: 40, width: layout.isWide ? 540 : undefined, maxWidth: '100%' }}
                 directionalLockEnabled={true}
             >
-                <Text style={{ fontSize: 22, fontWeight: 'bold', color: colors.text, paddingHorizontal: 20, marginBottom: 16 }}>
+                <Text style={{ fontSize: layout.fontSize.title - 4, fontWeight: 'bold', color: colors.text, paddingHorizontal: 20, marginBottom: 16 }}>
                     Your Cycle
                 </Text>
 
@@ -158,9 +162,9 @@ export default function CalendarScreen() {
                             arrowColor: colors.primary,
                             monthTextColor: colors.text,
                             textMonthFontWeight: '600',
-                            textMonthFontSize: 16,
-                            textDayFontSize: 14,
-                            textDayHeaderFontSize: 12,
+                            textMonthFontSize: layout.isWide ? 18 : 16,
+                            textDayFontSize: layout.isWide ? 16 : 14,
+                            textDayHeaderFontSize: layout.isWide ? 14 : 12,
                             dayTextColor: colors.text,
                             textSectionTitleColor: colors.textLight,
                         }}
@@ -169,7 +173,7 @@ export default function CalendarScreen() {
 
                 {/* Legend */}
                 <View style={{ paddingHorizontal: 20, marginTop: 24, gap: 10 }}>
-                    <Text style={{ fontSize: 13, fontWeight: '600', color: colors.textLight, marginBottom: 4 }}>
+                    <Text style={{ fontSize: layout.fontSize.small + 1, fontWeight: '600', color: colors.textLight, marginBottom: 4 }}>
                         LEGEND
                     </Text>
                     {[
@@ -179,7 +183,7 @@ export default function CalendarScreen() {
                     ].map(({ color, label }) => (
                         <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                             <View style={{ width: 14, height: 14, borderRadius: 7, backgroundColor: color }} />
-                            <Text style={{ color: colors.text, fontSize: 14 }}>{label}</Text>
+                            <Text style={{ color: colors.text, fontSize: layout.fontSize.small + 2 }}>{label}</Text>
                         </View>
                     ))}
                 </View>

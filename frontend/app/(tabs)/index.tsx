@@ -4,11 +4,13 @@ import Svg, { Circle } from 'react-native-svg';
 import { getPeriods, PeriodEntry, createPeriod, updatePeriod } from '../../services/cycles';
 import { getProfile, UserProfile } from '../../services/profile';
 import { colors } from '../../constants/colors';
+import { useLayout } from '../../constants/layout';
+import { CornerFlowers } from '../../components/Flowers';
 
-const RING_SIZE = 260;
-const RING_RADIUS = 105;
-const DOT_RADIUS = 6;
-const CURRENT_DOT_RADIUS = 9;
+const BASE_RING_SIZE = 260;
+const BASE_RING_RADIUS = 105;
+const BASE_DOT_RADIUS = 6;
+const BASE_CURRENT_DOT_RADIUS = 9;
 
 function getCycleInfo(cycles: PeriodEntry[], profile: UserProfile | null) {
     if (cycles.length === 0) return null;
@@ -68,6 +70,13 @@ export default function HomeScreen() {
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(false);
+    const layout = useLayout();
+
+    const ringScale = layout.isWide ? 1.3 : 1;
+    const RING_SIZE = BASE_RING_SIZE * ringScale;
+    const RING_RADIUS = BASE_RING_RADIUS * ringScale;
+    const DOT_RADIUS = BASE_DOT_RADIUS * ringScale;
+    const CURRENT_DOT_RADIUS = BASE_CURRENT_DOT_RADIUS * ringScale;
 
     const fetchData = useCallback(async () => {
         try {
@@ -126,9 +135,10 @@ export default function HomeScreen() {
 
     if (!info) {
         return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background, padding: 24 }}>
-                <Text style={{ fontSize: 28, fontWeight: 'bold', color: colors.text, marginBottom: 8 }}>Welcome</Text>
-                <Text style={{ color: colors.textLight, textAlign: 'center', marginBottom: 24 }}>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background, padding: layout.padding }}>
+                <Text style={{ fontSize: 72, marginBottom: 16, opacity: 0.7 }}>🌸🌷🌺</Text>
+                <Text style={{ fontSize: layout.fontSize.title, fontWeight: 'bold', color: colors.text, marginBottom: 8 }}>Welcome</Text>
+                <Text style={{ color: colors.textLight, textAlign: 'center', marginBottom: 24, fontSize: layout.fontSize.body }}>
                     Tap the button below to start tracking your cycle.
                 </Text>
                 <TouchableOpacity
@@ -137,11 +147,11 @@ export default function HomeScreen() {
                     style={{
                         backgroundColor: colors.primary,
                         paddingHorizontal: 32,
-                        paddingVertical: 14,
+                        paddingVertical: layout.isWide ? 16 : 14,
                         borderRadius: 12,
                     }}
                 >
-                    <Text style={{ color: '#fff', fontWeight: '600', fontSize: 16 }}>
+                    <Text style={{ color: '#fff', fontWeight: '600', fontSize: layout.fontSize.body }}>
                         {actionLoading ? 'Saving...' : 'My period started'}
                     </Text>
                 </TouchableOpacity>
@@ -164,8 +174,9 @@ export default function HomeScreen() {
     });
 
     return (
-        <View style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center', padding: 24 }}>
-            <View style={{ alignItems: 'center', marginBottom: 40 }}>
+        <View style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center', padding: layout.padding }}>
+            <CornerFlowers />
+            <View style={{ alignItems: 'center', marginBottom: layout.isWide ? 48 : 40 }}>
                 <View style={{ width: RING_SIZE, height: RING_SIZE, alignItems: 'center', justifyContent: 'center' }}>
                     <Svg width={RING_SIZE} height={RING_SIZE}>
                         {dots.map((dot) => (
@@ -181,20 +192,20 @@ export default function HomeScreen() {
                         ))}
                     </Svg>
                     <View style={{ position: 'absolute', alignItems: 'center' }}>
-                        <Text style={{ fontSize: 42, fontWeight: 'bold', color: colors.text }}>
+                        <Text style={{ fontSize: layout.isWide ? 52 : 42, fontWeight: 'bold', color: colors.text }}>
                             Day {info.currentDay}
                         </Text>
-                        <Text style={{ fontSize: 14, color: colors.textLight }}>
+                        <Text style={{ fontSize: layout.fontSize.small, color: colors.textLight }}>
                             of {info.cycleLength} days
                         </Text>
                     </View>
                 </View>
             </View>
 
-            <Text style={{ fontSize: 20, fontWeight: '600', color: colors.text, marginBottom: 4 }}>
+            <Text style={{ fontSize: layout.fontSize.stat, fontWeight: '600', color: colors.text, marginBottom: 4 }}>
                 {info.onPeriod ? 'On your period' : 'Not on your period'}
             </Text>
-            <Text style={{ color: colors.textLight, marginBottom: 16 }}>
+            <Text style={{ color: colors.textLight, marginBottom: 16, fontSize: layout.fontSize.body }}>
                 {info.onPeriod
                     ? `Day ${info.currentDay} of your period`
                     : `${info.daysLeft} day${info.daysLeft !== 1 ? 's' : ''} until next period`
@@ -207,15 +218,15 @@ export default function HomeScreen() {
                     disabled={actionLoading}
                     style={{
                         backgroundColor: colors.white,
-                        paddingHorizontal: 28,
-                        paddingVertical: 12,
+                        paddingHorizontal: layout.isWide ? 36 : 28,
+                        paddingVertical: layout.isWide ? 14 : 12,
                         borderRadius: 12,
                         borderWidth: 1,
                         borderColor: colors.primary,
                         marginBottom: 32,
                     }}
                 >
-                    <Text style={{ color: colors.primary, fontWeight: '600', fontSize: 15 }}>
+                    <Text style={{ color: colors.primary, fontWeight: '600', fontSize: layout.fontSize.body }}>
                         {actionLoading ? 'Saving...' : 'My period ended'}
                     </Text>
                 </TouchableOpacity>
@@ -225,34 +236,34 @@ export default function HomeScreen() {
                     disabled={actionLoading}
                     style={{
                         backgroundColor: colors.primary,
-                        paddingHorizontal: 28,
-                        paddingVertical: 12,
+                        paddingHorizontal: layout.isWide ? 36 : 28,
+                        paddingVertical: layout.isWide ? 14 : 12,
                         borderRadius: 12,
                         marginBottom: 32,
                     }}
                 >
-                    <Text style={{ color: '#fff', fontWeight: '600', fontSize: 15 }}>
+                    <Text style={{ color: '#fff', fontWeight: '600', fontSize: layout.fontSize.body }}>
                         {actionLoading ? 'Saving...' : 'My period started'}
                     </Text>
                 </TouchableOpacity>
             )}
 
             {/* Legend */}
-            <View style={{ flexDirection: 'row', gap: 20, marginBottom: 32 }}>
+            <View style={{ flexDirection: 'row', gap: layout.isWide ? 28 : 20, marginBottom: 32 }}>
                 {[
                     { color: colors.primary, label: 'Period' },
                     { color: colors.ovulation, label: 'Ovulation' },
                     { color: colors.ovulationLight, label: 'Regular' },
                 ].map(({ color, label }) => (
                     <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                        <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: color }} />
-                        <Text style={{ color: colors.textLight, fontSize: 12 }}>{label}</Text>
+                        <View style={{ width: layout.isWide ? 12 : 10, height: layout.isWide ? 12 : 10, borderRadius: 6, backgroundColor: color }} />
+                        <Text style={{ color: colors.textLight, fontSize: layout.fontSize.small }}>{label}</Text>
                     </View>
                 ))}
             </View>
 
             {/* Stats row */}
-            <View style={{ flexDirection: 'row', gap: 16 }}>
+            <View style={{ flexDirection: 'row', gap: 16, maxWidth: layout.isWide ? 480 : undefined, width: '100%' }}>
                 {[
                     { label: 'Cycle length', value: `${info.cycleLength}d` },
                     { label: 'Period length', value: `${info.periodLength}d` },
@@ -262,13 +273,13 @@ export default function HomeScreen() {
                         flex: 1,
                         backgroundColor: colors.white,
                         borderRadius: 12,
-                        padding: 16,
+                        padding: layout.isWide ? 20 : 16,
                         alignItems: 'center',
                         borderWidth: 1,
                         borderColor: colors.border,
                     }}>
-                        <Text style={{ fontSize: 20, fontWeight: 'bold', color: colors.text }}>{value}</Text>
-                        <Text style={{ fontSize: 11, color: colors.textLight, marginTop: 4 }}>{label}</Text>
+                        <Text style={{ fontSize: layout.fontSize.stat, fontWeight: 'bold', color: colors.text }}>{value}</Text>
+                        <Text style={{ fontSize: layout.fontSize.small, color: colors.textLight, marginTop: 4 }}>{label}</Text>
                     </View>
                 ))}
             </View>
