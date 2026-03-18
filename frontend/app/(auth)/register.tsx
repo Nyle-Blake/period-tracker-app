@@ -28,6 +28,7 @@ export default function RegisterScreen() {
     const [cycleLength, setCycleLength] = useState('28');
     const [periodLength, setPeriodLength] = useState('5');
     const [lastPeriodStart, setLastPeriodStart] = useState<Date | null>(null);
+    const [dateText, setDateText] = useState('');
     const [showDatePicker, setShowDatePicker] = useState(false);
     const { register, isLoading, error, clearError } = useAuthStore();
 
@@ -83,25 +84,22 @@ export default function RegisterScreen() {
     const renderDatePicker = () => {
         if (Platform.OS === 'web') {
             return (
-                <input
-                    type="date"
-                    max={toYMD(new Date())}
-                    value={lastPeriodStart ? toYMD(lastPeriodStart) : ''}
-                    onChange={(e) => {
-                        if (e.target.value) {
-                            setLastPeriodStart(new Date(e.target.value + 'T00:00:00'));
+                <TextInput
+                    style={inputStyle}
+                    placeholder="YYYY-MM-DD"
+                    placeholderTextColor={colors.textLight}
+                    value={dateText}
+                    onChangeText={(v) => {
+                        const cleaned = v.replace(/[^0-9-]/g, '');
+                        setDateText(cleaned);
+                        if (/^\d{4}-\d{2}-\d{2}$/.test(cleaned)) {
+                            const parsed = new Date(cleaned + 'T00:00:00');
+                            if (!isNaN(parsed.getTime())) {
+                                setLastPeriodStart(parsed);
+                            }
+                        } else {
+                            setLastPeriodStart(null);
                         }
-                    }}
-                    style={{
-                        borderWidth: 1,
-                        borderColor: colors.border,
-                        borderRadius: 8,
-                        padding: 12,
-                        marginBottom: 16,
-                        backgroundColor: colors.white,
-                        color: colors.text,
-                        fontSize: 16,
-                        width: '100%',
                     }}
                 />
             );
