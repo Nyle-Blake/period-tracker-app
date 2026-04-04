@@ -52,7 +52,14 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [origin.strip() for origin in getenv('CORS_ALLOWED_ORIGINS', '').split(',') if origin.strip()]
-CORS_ALLOW_ALL_ORIGINS = DEBUG
+CORS_ALLOW_ALL_ORIGINS = getenv('CORS_ALLOW_ALL', str(DEBUG)).lower() in ('true', '1')
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'authorization',
+    'content-type',
+    'origin',
+    'x-requested-with',
+]
 
 ROOT_URLCONF = 'config.urls'
 
