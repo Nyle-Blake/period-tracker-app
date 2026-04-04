@@ -5,6 +5,8 @@ import { colors } from '../../constants/colors';
 import { getPeriods, PeriodEntry } from '../../services/cycles';
 import { useLayout } from '../../constants/layout';
 import { CornerFlowers } from '../../components/Flowers';
+import { CornerPet } from '../../components/Pet';
+import usePetStore from '../../store/petStore';
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -118,6 +120,7 @@ export default function CalendarScreen() {
     const [cycles, setCycles] = useState<PeriodEntry[]>([]);
     const [loading, setLoading] = useState(true);
     const layout = useLayout();
+    const { pet } = usePetStore();
 
     const fetchCycles = useCallback(async () => {
         try {
@@ -140,6 +143,7 @@ export default function CalendarScreen() {
     return (
         <View style={{ flex: 1, backgroundColor: colors.background, alignItems: layout.isWide ? 'center' : 'stretch' }}>
             <CornerFlowers />
+            {pet && <CornerPet emoji={pet} />}
             <ScrollView
                 contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingVertical: 40, width: layout.isWide ? 540 : undefined, maxWidth: '100%' }}
                 directionalLockEnabled={true}

@@ -2,14 +2,18 @@ import { useState, useEffect, useCallback } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
 import { getProfile, updateProfile, UserProfile } from '../../services/profile';
 import useAuthStore from '../../store/authStore';
+import usePetStore from '../../store/petStore';
 import { colors } from '../../constants/colors';
 import { useLayout } from '../../constants/layout';
 import { CornerFlowers } from '../../components/Flowers';
+import { PET_OPTIONS, Pet } from '../../components/Pet';
 
 export default function ProfileScreen() {
     const { logout } = useAuthStore();
+    const { setPet: setGlobalPet } = usePetStore();
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [username, setUsername] = useState('');
+    const [selectedPet, setSelectedPet] = useState<string | null>(null);
     const [cycleLength, setCycleLength] = useState('');
     const [periodLength, setPeriodLength] = useState('');
     const [loading, setLoading] = useState(true);
@@ -36,6 +40,8 @@ export default function ProfileScreen() {
             setUsername(data.username);
             setCycleLength(data.cycle_length?.toString() ?? '');
             setPeriodLength(data.period_length?.toString() ?? '');
+            setSelectedPet(data.pet ?? null);
+            setGlobalPet(data.pet ?? null);
         } catch {
             setError('Failed to load profile');
         } finally {
@@ -76,7 +82,9 @@ export default function ProfileScreen() {
                 username: username.trim(),
                 cycle_length: cl,
                 period_length: pl,
+                pet: selectedPet,
             });
+            setGlobalPet(selectedPet);
             setSuccess(true);
         } catch {
             setError('Failed to save changes');
@@ -147,6 +155,38 @@ export default function ProfileScreen() {
                     placeholder="e.g. 5"
                     placeholderTextColor={colors.textLight}
                 />
+
+                <Text style={{ color: colors.textLight, marginBottom: 6, fontSize: layout.fontSize.small, textTransform: 'uppercase', letterSpacing: 1 }}>
+                    Pet companion
+                </Text>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
+                    {PET_OPTIONS.map(({ emoji, label }) => (
+                        <TouchableOpacity
+                            key={emoji}
+                            onPress={() => setSelectedPet(selectedPet === emoji ? null : emoji)}
+                            style={{
+                                width: 64,
+                                height: 64,
+                                borderRadius: 32,
+                                backgroundColor: selectedPet === emoji ? colors.primaryLight : colors.white,
+                                borderWidth: selectedPet === emoji ? 2 : 1,
+                                borderColor: selectedPet === emoji ? colors.primary : colors.border,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}
+                        >
+                            <Text style={{ fontSize: 28 }}>{emoji}</Text>
+                        </TouchableOpacity>
+                    ))}
+                </View>
+                {selectedPet && (
+                    <View style={{ alignItems: 'center', marginBottom: 16 }}>
+                        <Pet emoji={selectedPet} size={48} />
+                        <Text style={{ color: colors.textLight, fontSize: layout.fontSize.small, marginTop: 4 }}>
+                            {PET_OPTIONS.find(p => p.emoji === selectedPet)?.label}
+                        </Text>
+                    </View>
+                )}
 
                 <TouchableOpacity
                     style={{

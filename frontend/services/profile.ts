@@ -6,12 +6,14 @@ export interface UserProfile {
     username: string;
     cycle_length: number | null;
     period_length: number | null;
+    pet: string | null;
 }
 
 export interface UpdateProfilePayload {
     username?: string;
     cycle_length?: number | null;
     period_length?: number | null;
+    pet?: string | null;
 }
 
 export const getProfile = async (): Promise<UserProfile> => {

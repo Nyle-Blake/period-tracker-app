@@ -4,6 +4,8 @@ import { getSymptoms, getSymptomEntries, createSymptomEntry, deleteSymptomEntry,
 import { colors } from '../../constants/colors';
 import { useLayout } from '../../constants/layout';
 import { CornerFlowers } from '../../components/Flowers';
+import { CornerPet } from '../../components/Pet';
+import usePetStore from '../../store/petStore';
 
 const SEVERITY_LABELS: Record<number, string> = { 1: 'Mild', 2: 'Moderate', 3: 'Severe' };
 const SEVERITY_COLORS: Record<number, string> = { 1: colors.ovulation, 2: colors.accent, 3: colors.primary };
@@ -17,6 +19,7 @@ export default function LogScreen() {
     const [selectedSeverity, setSelectedSeverity] = useState<number>(1);
     const [error, setError] = useState<string | null>(null);
     const layout = useLayout();
+    const { pet } = usePetStore();
 
     const fetchData = useCallback(async () => {
         try {
@@ -85,6 +88,7 @@ export default function LogScreen() {
     return (
         <View style={{ flex: 1, backgroundColor: colors.background, alignItems: layout.isWide ? 'center' : 'stretch' }}>
             <CornerFlowers />
+            {pet && <CornerPet emoji={pet} />}
             <SectionList
                 sections={sections}
                 keyExtractor={(item) => item.id.toString()}

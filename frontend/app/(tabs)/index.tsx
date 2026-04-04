@@ -6,6 +6,8 @@ import { getProfile, UserProfile } from '../../services/profile';
 import { colors } from '../../constants/colors';
 import { useLayout } from '../../constants/layout';
 import { CornerFlowers } from '../../components/Flowers';
+import { CornerPet } from '../../components/Pet';
+import usePetStore from '../../store/petStore';
 
 const BASE_RING_SIZE = 260;
 const BASE_RING_RADIUS = 105;
@@ -71,6 +73,7 @@ export default function HomeScreen() {
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(false);
     const layout = useLayout();
+    const { pet, setPet } = usePetStore();
 
     const ringScale = layout.isWide ? 1.3 : 1;
     const RING_SIZE = BASE_RING_SIZE * ringScale;
@@ -83,6 +86,7 @@ export default function HomeScreen() {
             const [cyclesData, profileData] = await Promise.all([getPeriods(), getProfile()]);
             setCycles(cyclesData);
             setProfile(profileData);
+            setPet(profileData.pet ?? null);
         } catch {
             // silently fail, user will see empty state
         } finally {
@@ -176,6 +180,7 @@ export default function HomeScreen() {
     return (
         <View style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center', padding: layout.padding }}>
             <CornerFlowers />
+            {pet && <CornerPet emoji={pet} />}
             <View style={{ alignItems: 'center', marginBottom: layout.isWide ? 48 : 40 }}>
                 <View style={{ width: RING_SIZE, height: RING_SIZE, alignItems: 'center', justifyContent: 'center' }}>
                     <Svg width={RING_SIZE} height={RING_SIZE}>
