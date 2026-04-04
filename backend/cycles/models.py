@@ -46,7 +46,7 @@ class SymptomEntry(BaseModel):
     severity = models.IntegerField(choices=SEVERITY_CHOICES, null=True, blank=True)
 
     class Meta:
-        unique_together = ('user', 'symptom', 'date')
+        pass
 
     def __str__(self):
         return f"{self.user} - {self.symptom.name} - {self.date}"

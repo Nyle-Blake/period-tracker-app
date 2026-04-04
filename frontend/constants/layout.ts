@@ -3,7 +3,7 @@ import { Platform, useWindowDimensions } from 'react-native';
 export function useLayout() {
     const { width } = useWindowDimensions();
     const isWeb = Platform.OS === 'web';
-    const isWide = width > 600;
+    const isWide = isWeb && width > 1024;
 
     return {
         isWeb,

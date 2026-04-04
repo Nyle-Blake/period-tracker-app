@@ -86,17 +86,17 @@ export default function RegisterScreen() {
 
     const renderDatePicker = () => {
         if (Platform.OS === 'web') {
+            const today = new Date().toISOString().split('T')[0];
             return (
-                <TextInput
-                    style={inputStyle}
-                    placeholder="YYYY-MM-DD"
-                    placeholderTextColor={colors.textLight}
+                <input
+                    type="date"
+                    max={today}
                     value={dateText}
-                    onChangeText={(v) => {
-                        const cleaned = v.replace(/[^0-9-]/g, '');
-                        setDateText(cleaned);
-                        if (/^\d{4}-\d{2}-\d{2}$/.test(cleaned)) {
-                            const parsed = new Date(cleaned + 'T00:00:00');
+                    onChange={(e: any) => {
+                        const val = e.target.value;
+                        setDateText(val);
+                        if (val) {
+                            const parsed = new Date(val + 'T00:00:00');
                             if (!isNaN(parsed.getTime())) {
                                 setLastPeriodStart(parsed);
                             }
@@ -104,6 +104,20 @@ export default function RegisterScreen() {
                             setLastPeriodStart(null);
                         }
                     }}
+                    style={{
+                        borderWidth: 1,
+                        borderStyle: 'solid',
+                        borderColor: colors.border,
+                        borderRadius: 8,
+                        padding: layout.inputPadding,
+                        marginBottom: 16,
+                        backgroundColor: colors.white,
+                        fontSize: layout.fontSize.body,
+                        color: colors.text,
+                        fontFamily: 'inherit',
+                        width: '100%',
+                        boxSizing: 'border-box',
+                    } as any}
                 />
             );
         }

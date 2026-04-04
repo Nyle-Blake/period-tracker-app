@@ -98,7 +98,7 @@ export default function ProfileScreen() {
         <CornerFlowers />
         <ScrollView
             style={{ flex: 1 }}
-            contentContainerStyle={{ padding: layout.padding, alignItems: layout.isWide ? 'center' : 'stretch' }}
+            contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: layout.padding, alignItems: layout.isWide ? 'center' : 'stretch' }}
         >
             <View style={{ width: layout.contentWidth, maxWidth: '100%' }}>
                 <Text style={{ fontSize: layout.fontSize.title, fontWeight: 'bold', marginBottom: 4, color: colors.text }}>

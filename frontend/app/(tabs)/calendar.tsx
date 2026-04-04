@@ -141,7 +141,7 @@ export default function CalendarScreen() {
         <View style={{ flex: 1, backgroundColor: colors.background, alignItems: layout.isWide ? 'center' : 'stretch' }}>
             <CornerFlowers />
             <ScrollView
-                contentContainerStyle={{ paddingTop: 60, paddingBottom: 40, width: layout.isWide ? 540 : undefined, maxWidth: '100%' }}
+                contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingVertical: 40, width: layout.isWide ? 540 : undefined, maxWidth: '100%' }}
                 directionalLockEnabled={true}
             >
                 <Text style={{ fontSize: layout.fontSize.title - 4, fontWeight: 'bold', color: colors.text, paddingHorizontal: 20, marginBottom: 16 }}>

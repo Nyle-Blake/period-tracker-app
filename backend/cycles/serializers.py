@@ -55,5 +55,16 @@ class SymptomEntrySerializer(serializers.ModelSerializer):
     def validate_date(self, value):
         if value > timezone.now().date():
             raise serializers.ValidationError("Cannot log symptoms for a future date.")
-
         return value
+
+    def validate(self, data):
+        user = self.context['request'].user
+        symptom = data.get('symptom')
+        date = data.get('date')
+        if symptom and date:
+            existing = SymptomEntry.objects.filter(user=user, symptom=symptom, date=date)
+            if self.instance:
+                existing = existing.exclude(pk=self.instance.pk)
+            if existing.exists():
+                raise serializers.ValidationError("You have already logged this symptom today.")
+        return data

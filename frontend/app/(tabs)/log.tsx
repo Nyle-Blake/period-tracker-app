@@ -88,7 +88,7 @@ export default function LogScreen() {
             <SectionList
                 sections={sections}
                 keyExtractor={(item) => item.id.toString()}
-                contentContainerStyle={{ padding: layout.padding, paddingBottom: 40, width: layout.isWide ? 540 : undefined, maxWidth: '100%' }}
+                contentContainerStyle={{ padding: layout.padding, paddingTop: 120, paddingBottom: 40, width: layout.isWide ? 540 : undefined, maxWidth: '100%' }}
                 ListHeaderComponent={
                     <View style={{ marginBottom: 24 }}>
                         <Text style={{ fontSize: layout.fontSize.title, fontWeight: 'bold', marginBottom: 16, color: colors.text }}>

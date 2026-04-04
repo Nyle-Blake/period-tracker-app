@@ -1,11 +1,18 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Platform, useWindowDimensions } from 'react-native';
+import { Platform, useWindowDimensions, TouchableOpacity, Text } from 'react-native';
 import { colors } from '../../constants/colors';
+
+const tabs = [
+    { name: 'index', title: 'Home', icon: 'home', iconOutline: 'home-outline' },
+    { name: 'calendar', title: 'Calendar', icon: 'calendar', iconOutline: 'calendar-outline' },
+    { name: 'log', title: 'Log', icon: 'list', iconOutline: 'list-outline' },
+    { name: 'profile', title: 'Profile', icon: 'person', iconOutline: 'person-outline' },
+] as const;
 
 export default function TabsLayout() {
     const { width } = useWindowDimensions();
-    const isWide = Platform.OS === 'web' && width > 600;
+    const isWide = Platform.OS === 'web' && width > 1024;
 
     return (
         <Tabs
@@ -30,38 +37,56 @@ export default function TabsLayout() {
                 } : undefined,
             }}
         >
-            <Tabs.Screen
-                name="index"
-                options={{
-                    title: 'Home',
-                    tabBarIcon: ({ focused, color }) => (
-                        <Ionicons name={focused ? "home" : "home-outline"} size={24} color={color} />
-                    ),
-                }} />
-            <Tabs.Screen
-                name="calendar"
-                options={{
-                    title: 'Calendar',
-                    tabBarIcon: ({ focused, color }) => (
-                        <Ionicons name={focused ? "calendar" : "calendar-outline"} size={24} color={color} />
-                    ),
-                }} />
-            <Tabs.Screen
-                name="log"
-                options={{
-                    title: 'Log',
-                    tabBarIcon: ({ focused, color }) => (
-                        <Ionicons name={focused ? "list" : "list-outline"} size={24} color={color} />
-                    ),
-                }} />
-            <Tabs.Screen
-                name="profile"
-                options={{
-                    title: 'Profile',
-                    tabBarIcon: ({ focused, color }) => (
-                        <Ionicons name={focused ? "person" : "person-outline"} size={24} color={color} />
-                    ),
-                }} />
+            {tabs.map((tab) => (
+                <Tabs.Screen
+                    key={tab.name}
+                    name={tab.name}
+                    options={{
+                        title: tab.title,
+                        tabBarIcon: ({ focused, color }) => (
+                            <Ionicons
+                                name={focused ? tab.icon : tab.iconOutline}
+                                size={isWide ? 28 : 24}
+                                color={color}
+                            />
+                        ),
+                        tabBarButton: isWide ? (props) => {
+                            const focused = (props as any).accessibilityState?.selected;
+                            return (
+                                <TouchableOpacity
+                                    onPress={props.onPress}
+                                    style={{
+                                        width: 160,
+                                        height: 80,
+                                        borderRadius: 40,
+                                        backgroundColor: focused ? colors.primaryLight : colors.background,
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        marginBottom: 12,
+                                        alignSelf: 'center',
+                                        borderWidth: focused ? 2 : 1,
+                                        borderColor: focused ? colors.primary : colors.border,
+                                    }}
+                                >
+                                    <Ionicons
+                                        name={focused ? tab.icon : tab.iconOutline}
+                                        size={28}
+                                        color={focused ? colors.primary : colors.textLight}
+                                    />
+                                    <Text style={{
+                                        fontSize: 13,
+                                        fontWeight: focused ? '700' : '500',
+                                        color: focused ? colors.primary : colors.textLight,
+                                        marginTop: 4,
+                                    }}>
+                                        {tab.title}
+                                    </Text>
+                                </TouchableOpacity>
+                            );
+                        } : undefined,
+                    }}
+                />
+            ))}
         </Tabs>
     );
 }
