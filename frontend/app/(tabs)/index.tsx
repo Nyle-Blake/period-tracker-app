@@ -20,6 +20,7 @@ function getCycleInfo(cycles: PeriodEntry[], profile: UserProfile | null) {
     const sorted = [...cycles].sort((a, b) => b.start_date.localeCompare(a.start_date));
     const latest = sorted[0];
 
+    const profileCycleLength = profile?.cycle_length ?? 28;
     let cycleLength = profile?.cycle_length ?? 28;
     if (sorted.length >= 2) {
         const lengths: number[] = [];
@@ -58,7 +59,7 @@ function getCycleInfo(cycles: PeriodEntry[], profile: UserProfile | null) {
     const latestEntry = latest;
     const periodActive = !latest.end_date && currentDay <= periodLength;
 
-    return { currentDay, cycleLength, periodLength, daysLeft, onPeriod, ovulationStart, ovulationEnd, latestEntry, periodActive };
+    return { currentDay, cycleLength, profileCycleLength, periodLength, daysLeft, onPeriod, ovulationStart, ovulationEnd, latestEntry, periodActive };
 }
 
 function getDotColor(day: number, periodLength: number, ovulationStart: number, ovulationEnd: number): string {
@@ -270,7 +271,7 @@ export default function HomeScreen() {
             {/* Stats row */}
             <View style={{ flexDirection: 'row', gap: 16, maxWidth: layout.isWide ? 480 : undefined, width: '100%' }}>
                 {[
-                    { label: 'Cycle length', value: `${info.cycleLength}d` },
+                    { label: 'Cycle length', value: `${info.profileCycleLength}d` },
                     { label: 'Period length', value: `${info.periodLength}d` },
                     { label: 'Cycle day', value: `${info.currentDay}` },
                 ].map(({ label, value }) => (
