@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { getItem } from '../services/storage';
 import { login as loginService, logout as logoutService, register as registerService } from '../services/auth';
+import { onSignedOut } from '../services/api';
 
 interface AuthState {
     isAuthenticated: boolean;
@@ -59,5 +60,9 @@ const useAuthStore = create<AuthState>((set) => ({
 
     clearError: () => set({ error: null }),
 }));
+
+// the api client calls this when a request's refresh token is missing/expired,
+// so the app can drop back to the login screen instead of showing broken data
+onSignedOut(() => useAuthStore.setState({ isAuthenticated: false }));
 
 export default useAuthStore;
