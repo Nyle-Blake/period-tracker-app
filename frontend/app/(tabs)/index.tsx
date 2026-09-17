@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { View, Text, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, Text, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { getPeriods, PeriodEntry, createPeriod, updatePeriod } from '../../services/cycles';
 import { getProfile, UserProfile } from '../../services/profile';
@@ -57,9 +57,22 @@ function getCycleInfo(cycles: PeriodEntry[], profile: UserProfile | null) {
     const ovulationEnd = ovulationMid + 2;
 
     const latestEntry = latest;
-    const periodActive = !latest.end_date && currentDay <= periodLength;
+    const coversToday = currentDay >= 1 && currentDay <= periodLength;
+    const periodActive = coversToday && !latest.end_date;
+    const periodLoggedToday = coversToday && !!latest.end_date;
 
-    return { currentDay, cycleLength, profileCycleLength, periodLength, daysLeft, onPeriod, ovulationStart, ovulationEnd, latestEntry, periodActive };
+    return { currentDay, cycleLength, profileCycleLength, periodLength, daysLeft, onPeriod, ovulationStart, ovulationEnd, latestEntry, periodActive, periodLoggedToday };
+}
+
+function getErrorMessage(err: unknown): string {
+    const data = (err as { response?: { data?: unknown } })?.response?.data as
+        | Record<string, string[] | string>
+        | undefined;
+    if (!data) return 'Something went wrong. Please try again.';
+    const firstValue = Object.values(data)[0];
+    if (Array.isArray(firstValue)) return firstValue[0];
+    if (typeof firstValue === 'string') return firstValue;
+    return 'Something went wrong. Please try again.';
 }
 
 function getDotColor(day: number, periodLength: number, ovulationStart: number, ovulationEnd: number): string {
@@ -101,8 +114,8 @@ export default function HomeScreen() {
             const today = new Date().toISOString().split('T')[0];
             await createPeriod({ start_date: today });
             await fetchData();
-        } catch {
-            // silently fail
+        } catch (err) {
+            Alert.alert('Could not start period', getErrorMessage(err));
         } finally {
             setActionLoading(false);
         }
@@ -117,8 +130,8 @@ export default function HomeScreen() {
             const today = new Date().toISOString().split('T')[0];
             await updatePeriod(latest.id, { end_date: today });
             await fetchData();
-        } catch {
-            // silently fail
+        } catch (err) {
+            Alert.alert('Could not end period', getErrorMessage(err));
         } finally {
             setActionLoading(false);
         }
@@ -236,6 +249,10 @@ export default function HomeScreen() {
                         {actionLoading ? 'Saving...' : 'My period ended'}
                     </Text>
                 </TouchableOpacity>
+            ) : info.periodLoggedToday ? (
+                <Text style={{ color: colors.textLight, marginBottom: 32, fontSize: layout.fontSize.body }}>
+                    Today's period is already logged
+                </Text>
             ) : (
                 <TouchableOpacity
                     onPress={handlePeriodStarted}
