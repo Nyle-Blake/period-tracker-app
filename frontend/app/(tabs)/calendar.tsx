@@ -31,9 +31,12 @@ function buildMarkedDates(cycles: PeriodEntry[]): MarkedDates {
 
     if (cycles.length === 0) return marked;
 
+    const todayStr = new Date().toISOString().split('T')[0];
+
     // Mark actual period days
     cycles.forEach((c) => {
-        const end = c.end_date ?? c.start_date;
+        // An open period runs through today until the user ends it
+        const end = c.end_date ?? (todayStr > c.start_date ? todayStr : c.start_date);
         let cur = c.start_date;
         while (cur <= end) {
             mark(cur, colors.primary, colors.white);

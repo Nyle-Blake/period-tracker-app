@@ -30,7 +30,11 @@ class PeriodEntrySerializer(serializers.ModelSerializer):
             if self.instance:
                 existing = existing.exclude(pk=self.instance.pk)
             for c in existing:
-                period_end = c.end_date or (c.start_date + timedelta(days=period_length - 1))
+                if c.end_date:
+                    period_end = c.end_date
+                else:
+                    # An open period runs until the user ends it
+                    period_end = max(c.start_date + timedelta(days=period_length - 1), today)
                 if start_date >= c.start_date and start_date <= period_end:
                     raise serializers.ValidationError(
                         "This date falls within an existing period."

@@ -55,6 +55,13 @@ class PeriodEntryTests(TestCase):
         res = self.client.post(self.url, data)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_new_period_rejected_while_open_period_past_expected_length(self):
+        start = date.today() - timedelta(days=8)
+        PeriodEntry.objects.create(user=self.user, start_date=start)
+        data = {'start_date': str(date.today())}
+        res = self.client.post(self.url, data)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_non_overlapping_periods_allowed(self):
         old_start = date.today() - timedelta(days=20)
         old_end = date.today() - timedelta(days=16)

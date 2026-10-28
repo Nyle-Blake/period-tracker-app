@@ -35,19 +35,23 @@ function getCycleInfo(cycles: PeriodEntry[], profile: UserProfile | null) {
         }
     }
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const startDate = new Date(latest.start_date);
+    startDate.setHours(0, 0, 0, 0);
+    const currentDay = Math.round((today.getTime() - startDate.getTime()) / 86400000) + 1;
+
     let periodLength = profile?.period_length ?? 5;
     if (latest.end_date) {
         const diff = Math.round(
             (new Date(latest.end_date).getTime() - new Date(latest.start_date).getTime()) / 86400000
         ) + 1;
         periodLength = diff;
+    } else {
+        // An open period lasts until the user ends it, even past the expected length
+        periodLength = Math.max(periodLength, currentDay);
     }
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const startDate = new Date(latest.start_date);
-    startDate.setHours(0, 0, 0, 0);
-    const currentDay = Math.round((today.getTime() - startDate.getTime()) / 86400000) + 1;
     const daysLeft = Math.max(0, cycleLength - currentDay + 1);
     const onPeriod = currentDay <= periodLength;
 
