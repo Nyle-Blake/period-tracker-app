@@ -3,7 +3,7 @@ import api from './api';
 export interface PeriodEntry {
     id?: number;
     start_date: string;   // YYYY-MM-DD
-    end_date?: string;    // YYYY-MM-DD
+    end_date?: string | null;    // YYYY-MM-DD, null while the period is ongoing
     notes?: string;
     period_days?: number;
 }

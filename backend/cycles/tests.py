@@ -84,6 +84,56 @@ class PeriodEntryTests(TestCase):
         entry.refresh_from_db()
         self.assertEqual(entry.end_date, date.today())
 
+    def test_update_period_start_date(self):
+        entry = PeriodEntry.objects.create(
+            user=self.user,
+            start_date=date.today() - timedelta(days=10),
+            end_date=date.today() - timedelta(days=6),
+        )
+        new_start = date.today() - timedelta(days=12)
+        res = self.client.patch(f'{self.url}{entry.id}/', {'start_date': str(new_start)})
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        entry.refresh_from_db()
+        self.assertEqual(entry.start_date, new_start)
+
+    def test_update_end_date_before_saved_start_rejected(self):
+        entry = PeriodEntry.objects.create(user=self.user, start_date=date.today() - timedelta(days=3))
+        res = self.client.patch(f'{self.url}{entry.id}/', {'end_date': str(date.today() - timedelta(days=5))})
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_end_date_cannot_be_future(self):
+        entry = PeriodEntry.objects.create(user=self.user, start_date=date.today() - timedelta(days=3))
+        res = self.client.patch(f'{self.url}{entry.id}/', {'end_date': str(date.today() + timedelta(days=1))})
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_end_date_into_next_period_rejected(self):
+        entry = PeriodEntry.objects.create(
+            user=self.user,
+            start_date=date.today() - timedelta(days=40),
+            end_date=date.today() - timedelta(days=36),
+        )
+        PeriodEntry.objects.create(user=self.user, start_date=date.today() - timedelta(days=12))
+        res = self.client.patch(f'{self.url}{entry.id}/', {'end_date': str(date.today() - timedelta(days=10))})
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_allowed_alongside_older_unended_period(self):
+        # An old period that was never ended shouldn't block edits to newer ones
+        PeriodEntry.objects.create(user=self.user, start_date=date.today() - timedelta(days=40))
+        entry = PeriodEntry.objects.create(user=self.user, start_date=date.today() - timedelta(days=3))
+        res = self.client.patch(f'{self.url}{entry.id}/', {'end_date': str(date.today())})
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_reopen_period_by_clearing_end_date(self):
+        entry = PeriodEntry.objects.create(
+            user=self.user,
+            start_date=date.today() - timedelta(days=3),
+            end_date=date.today() - timedelta(days=1),
+        )
+        res = self.client.patch(f'{self.url}{entry.id}/', {'end_date': None}, format='json')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        entry.refresh_from_db()
+        self.assertIsNone(entry.end_date)
+
     def test_delete_period_entry(self):
         entry = PeriodEntry.objects.create(user=self.user, start_date=date.today() - timedelta(days=3))
         res = self.client.delete(f'{self.url}{entry.id}/')

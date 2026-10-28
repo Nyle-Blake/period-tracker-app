@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { View, Text, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
+import { useFocusEffect } from 'expo-router';
 import { getPeriods, PeriodEntry, createPeriod, updatePeriod } from '../../services/cycles';
 import { getProfile, UserProfile } from '../../services/profile';
 import { colors } from '../../constants/colors';
@@ -141,9 +142,10 @@ export default function HomeScreen() {
         }
     };
 
-    useEffect(() => {
+    // Refetch whenever the tab is shown so edits made in the calendar appear
+    useFocusEffect(useCallback(() => {
         fetchData();
-    }, []);
+    }, [fetchData]));
 
     if (loading) {
         return (
